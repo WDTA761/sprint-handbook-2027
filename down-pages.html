@@ -1,0 +1,1419 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<!-- pwa-shell -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="robots" content="noindex,nofollow">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#f7e3ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<title>冲刺背诵手册 · 下册</title>
+<style>
+:root{
+  --bar:rgba(255,249,252,.88);--panel:#fff8fb;--card:#fffdfe;
+  --fg:#3a2b31;--fg2:#9b7d88;--line:rgba(186,124,150,.20);
+  --accent:#b8486f;--accent-soft:rgba(216,124,152,.14);--accent-line:rgba(184,72,111,.34);
+  --ok:#7fae9d;--ok-soft:rgba(127,174,157,.18);
+  --shadow:0 10px 30px rgba(158,86,118,.14);--shadow-s:0 4px 14px rgba(158,86,118,.10);
+  --barT:64px;--barB:66px;--side:300px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{overflow:hidden;color:var(--fg);
+  background:radial-gradient(120% 80% at 50% -10%,#fff7fa 0%,#fbe8f0 46%,#f3d6e3 100%);
+  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;overscroll-behavior:none}
+button{font-family:inherit;cursor:pointer;color:inherit}
+button:active{transform:scale(.97)}
+svg{display:block}
+.ib{width:44px;height:44px;flex:none;border:0;border-radius:14px;background:transparent;display:grid;place-items:center;
+  color:var(--fg);text-decoration:none;transition:background .16s ease,color .16s ease,transform .12s ease}
+.ib:active{background:var(--accent-soft);transform:scale(.93)}
+.ib.on{color:var(--accent);background:var(--accent-soft)}
+.ib.nav{background:rgba(255,255,255,.55);border:1px solid var(--line)}
+.ib.nav:active{background:var(--accent-soft)}
+.ib svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- top bar ---------- */
+.topbar{position:fixed;top:calc(env(safe-area-inset-top) + 6px);left:8px;right:8px;z-index:40;height:52px;
+  padding:0 8px;display:flex;align-items:center;gap:4px;border-radius:18px;border:1px solid var(--line);
+  background:rgba(255,250,252,.87);backdrop-filter:blur(12px) saturate(1.15);-webkit-backdrop-filter:blur(12px) saturate(1.15);
+  box-shadow:var(--shadow-s)}
+.ttl{flex:1;min-width:0;padding:0 4px;line-height:1.25}
+.ttl .t1{font-size:14px;font-weight:650;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ttl .t2{font-size:10.5px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.today{height:44px;min-width:62px;flex:none;padding:0 10px;border-radius:14px;border:1px solid var(--line);
+  background:rgba(255,255,255,.62);display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--fg2);
+  transition:background .16s ease,color .16s ease,border-color .16s ease}
+.today svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.today b{font-size:14px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+.today.hot{border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent)}
+
+/* ---------- page stage ---------- */
+.viewport{position:fixed;left:0;right:0;top:calc(var(--barT) + env(safe-area-inset-top));
+  bottom:calc(var(--barB) + env(safe-area-inset-bottom));
+  overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+  touch-action:pan-x}
+.viewport::-webkit-scrollbar,.side-body::-webkit-scrollbar,.sheet::-webkit-scrollbar{display:none;width:0;height:0}
+.viewport,.side-body,.sheet{scrollbar-width:none;-ms-overflow-style:none}
+.track{display:flex;height:100%}
+.slide{flex:0 0 100%;height:100%;scroll-snap-align:center;display:flex;align-items:center;justify-content:center;
+  padding:10px 8px;position:relative;overflow:hidden}
+.pagebox{position:relative;display:flex;align-items:center;justify-content:center;line-height:0;
+  max-width:var(--pw,100%);max-height:var(--ph,100%);background:#fff;border-radius:5px;
+  box-shadow:0 6px 18px rgba(140,80,105,.16),0 1px 2px rgba(140,80,105,.10);overflow:hidden;transform-origin:center center}
+.pagebox img{display:block;max-width:var(--pw,100%);max-height:var(--ph,100%);width:auto;height:auto;object-fit:contain;
+  -webkit-user-drag:none;user-select:none;-webkit-touch-callout:none}
+.slide .no{position:absolute;right:12px;bottom:10px;z-index:4;font-size:10.5px;letter-spacing:.02em;color:#9a6377;
+  background:rgba(255,255,255,.92);border:1px solid var(--line);padding:2px 8px;border-radius:999px;
+  transition:opacity .16s ease}
+.slide .cnt{display:none}
+body.zoomed .slide .no{opacity:0}
+body.zoomed .pagebox{will-change:transform}
+
+/* ---------- blanks ---------- */
+body:not(.cloze) .blank{display:none}
+.blank{position:absolute;cursor:pointer;z-index:3;border-radius:5px;
+  transition:opacity .16s ease,transform .1s ease;
+  background:rgba(205,235,224,1);box-shadow:inset 0 0 0 1px rgba(120,175,155,.16)}
+.blank:active{transform:scale(.97)}
+.blank.open{opacity:0;pointer-events:none}
+body.bs-blur .blank{-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+  background:linear-gradient(180deg,rgba(255,252,246,.97),rgba(246,236,220,.96));
+  box-shadow:inset 0 0 0 1px rgba(190,160,120,.24)}
+body.bs-marker .blank{-webkit-backdrop-filter:none;backdrop-filter:none;
+  background:rgba(255,212,112,.97);box-shadow:0 1px 0 rgba(200,150,60,.32);border-radius:3px}
+body.bs-blank .blank{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(255,255,255,.98);
+  border-radius:3px;box-shadow:inset 0 -2px 0 rgba(179,56,91,.42),inset 0 0 0 1px rgba(200,180,160,.32)}
+body.bs-candy .blank:nth-child(5n+2){background:rgba(255,231,214,1);box-shadow:inset 0 0 0 1px rgba(215,165,110,.16)}
+body.bs-candy .blank:nth-child(5n+3){background:rgba(224,228,255,1);box-shadow:inset 0 0 0 1px rgba(150,160,215,.16)}
+body.bs-candy .blank:nth-child(5n+4){background:rgba(255,242,205,1);box-shadow:inset 0 0 0 1px rgba(210,185,110,.16)}
+body.bs-candy .blank:nth-child(5n+5){background:rgba(255,226,234,1);box-shadow:inset 0 0 0 1px rgba(215,150,170,.16)}
+body.bs-hint .blank{-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+  background:rgba(250,246,238,.5);box-shadow:inset 0 0 0 1px rgba(190,160,120,.22)}
+body.bs-dark .blank{-webkit-backdrop-filter:none;backdrop-filter:none;background:#221d1f}
+
+/* ---------- bottom hud ---------- */
+.hud{position:fixed;left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom) + 6px);z-index:40;height:56px;
+  padding:0 7px;display:flex;align-items:center;gap:5px;border-radius:20px;border:1px solid var(--line);
+  background:rgba(255,250,252,.89);backdrop-filter:blur(12px) saturate(1.15);-webkit-backdrop-filter:blur(12px) saturate(1.15);
+  box-shadow:var(--shadow-s)}
+.seek{flex:1;min-width:70px;display:flex;flex-direction:column;justify-content:center;padding:0 4px}
+.seek input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;margin:0}
+.seek input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:6px;
+  background:linear-gradient(90deg,#f3cbdb 0%,#e7b0c6 55%,#dc9cb6 100%)}
+.seek input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+  background:#fff;border:2px solid var(--accent);box-shadow:0 2px 8px rgba(158,86,118,.30),0 0 0 4px rgba(216,124,152,.13);
+  margin-top:-8px}
+.seek input[type=range]::-moz-range-track{height:6px;border-radius:6px;background:linear-gradient(90deg,#f3cbdb,#dc9cb6)}
+.seek input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid var(--accent)}
+.idx{font-size:10px;color:var(--fg2);line-height:1.2;font-variant-numeric:tabular-nums;white-space:nowrap}
+.idxrow{display:flex;align-items:center;justify-content:center;gap:5px;line-height:1}
+.lv{flex:none;height:16px;padding:0 6px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(255,255,255,.6);display:inline-flex;align-items:center;font-size:9.5px;color:var(--fg2);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.lv.d1{color:var(--accent);border-color:var(--accent-line);background:var(--accent-soft)}
+.lv.d2{color:#fff;border-color:transparent;background:linear-gradient(180deg,#c4698e,#a93a63)}
+.lcnt{flex:none;height:16px;padding:0 6px;border-radius:999px;border:1px solid var(--accent-line);
+  background:rgba(255,247,251,.9);color:var(--accent);font-size:9.5px;display:none;align-items:center;white-space:nowrap}
+body.cloze .lcnt{display:inline-flex}
+.hud input[type=number]{width:48px;height:44px;flex:none;border-radius:13px;border:1px solid var(--line);
+  background:rgba(255,255,255,.7);color:var(--fg);text-align:center;font-size:12px;-webkit-appearance:none;margin:0}
+.hud input[type=number]::-webkit-outer-spin-button,.hud input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.ib.wide{width:auto;padding:0 11px;font-size:12px;font-weight:600;gap:5px;display:flex;align-items:center;
+  border:1px solid var(--line);background:rgba(255,255,255,.66);color:var(--accent)}
+.donebtn{flex:none;height:44px;padding:0 16px;border:0;border-radius:16px;color:#fff;font-size:13.5px;font-weight:700;
+  display:flex;align-items:center;gap:6px;white-space:nowrap;
+  background:linear-gradient(180deg,#cd6a8e 0%,#b8486f 55%,#a93a63 100%);
+  box-shadow:0 8px 20px rgba(169,58,99,.28),inset 0 1px 0 rgba(255,255,255,.28);
+  transition:transform .12s ease,box-shadow .16s ease}
+.donebtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.donebtn:active{transform:scale(.97);box-shadow:0 3px 10px rgba(169,58,99,.22)}
+.donebtn.ok{background:linear-gradient(180deg,#93c1b1,#6fa392);box-shadow:0 6px 16px rgba(90,140,120,.3)}
+
+/* ---------- side drawer ---------- */
+.side{position:fixed;left:0;top:0;bottom:0;z-index:60;width:min(84vw,336px);display:flex;flex-direction:column;
+  background:linear-gradient(180deg,#fffafc,#fff2f7);border-radius:0 22px 22px 0;
+  border-right:1px solid var(--line);box-shadow:18px 0 48px rgba(150,80,110,.18);
+  transform:translateX(-103%);transition:transform .2s cubic-bezier(.22,.8,.28,1)}
+.side.open{transform:none}
+.side-head{padding:calc(14px + env(safe-area-inset-top)) 14px 10px;border-bottom:1px solid var(--line)}
+.side-head .bt{font-size:13.5px;font-weight:700;padding-right:36px}
+.side-head .bs{font-size:10.5px;color:var(--fg2);margin-top:3px}
+.side-x{position:absolute;right:8px;top:calc(10px + env(safe-area-inset-top));width:44px;height:44px;border:0;
+  border-radius:14px;background:transparent;display:grid;place-items:center;color:var(--fg2);font-size:15px}
+.side-tabs{display:flex;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line)}
+.side-tabs button{flex:1;min-height:44px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.7);
+  color:var(--fg2);font-size:12.5px;font-weight:600;transition:color .16s ease,border-color .16s ease,background .16s ease}
+.side-tabs button.on{border-color:var(--accent-line);color:var(--accent);background:var(--accent-soft)}
+.side-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 8px 28px}
+.grp{margin:4px 0 10px}
+.grp-h{cursor:pointer;display:flex;align-items:center;gap:6px;padding:9px 8px;min-height:44px;border-radius:12px;
+  font-size:11.5px;font-weight:700;color:var(--accent);letter-spacing:.02em}
+.grp-h:active{background:var(--accent-soft)}
+.grp-h .car{font-size:9px;color:var(--fg2);transition:transform .18s ease;flex:none}
+.grp-h .gt{flex:1;min-width:0}
+.grp-h .gp{flex:none;font-size:10px;font-weight:600;color:var(--fg2);background:rgba(255,255,255,.75);
+  border:1px solid var(--line);border-radius:999px;padding:1px 7px;font-variant-numeric:tabular-nums}
+.grp.collapsed .car{transform:rotate(-90deg)}
+.grp.collapsed .toc-item{display:none}
+.toc-item{display:flex;gap:9px;min-height:46px;padding:8px 10px;border-radius:13px;color:var(--fg);text-decoration:none;
+  font-size:12.5px;line-height:1.4;align-items:center;margin:0 2px 1px;transition:background .14s ease}
+.toc-item:active{background:rgba(239,124,156,.12)}
+.toc-item .tx{flex:1;min-width:0}
+.toc-item .pg{color:var(--fg2);font-size:10.5px;flex:none;min-width:34px;text-align:center;font-variant-numeric:tabular-nums;
+  background:rgba(255,255,255,.85);border:1px solid var(--line);border-radius:999px;padding:1px 6px}
+.toc-item.on{background:var(--accent-soft);color:var(--accent);font-weight:600;box-shadow:inset 3px 0 0 var(--accent)}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;display:inline-block;box-sizing:border-box}
+.dot.d0{background:transparent;box-shadow:inset 0 0 0 1.5px #dcc2cd}
+.dot.d1{background:#e39db5}
+.dot.d2{background:linear-gradient(135deg,#c4698e,#a93a63);box-shadow:0 0 0 2px rgba(216,124,152,.16)}
+.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.thumbs button{padding:0;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff;position:relative}
+.thumbs img{display:block;width:100%;height:auto}
+.thumbs span{position:absolute;right:4px;bottom:3px;font-size:9px;color:#fff;background:rgba(90,50,65,.55);
+  padding:0 4px;border-radius:4px;line-height:1.5}
+.thumbs .dot{position:absolute;left:5px;top:5px;width:9px;height:9px;box-shadow:0 0 0 1.5px rgba(255,255,255,.9)}
+.thumbs button.on{outline:2px solid var(--accent);outline-offset:-2px}
+.side-scrim{position:fixed;inset:0;z-index:55;background:rgba(120,80,95,.24);opacity:0;pointer-events:none;transition:opacity .2s ease}
+.side-scrim.show{opacity:1;pointer-events:auto}
+
+/* iPad 横屏（>=1000px）：目录默认常驻，书页区域让出 300px；button 可收起 */
+@media (min-width:1000px){
+  .side{transform:none;width:var(--side);border-radius:0;box-shadow:4px 0 24px rgba(150,80,110,.07)}
+  .side-scrim{display:none!important}
+  .topbar{left:calc(var(--side) + 8px)}
+  .viewport{left:var(--side)}
+  .hud{left:calc(var(--side) + 8px)}
+  .side-head .bt{font-size:14px}
+}
+body.side-off .side{transform:translateX(-102%)}
+body.side-off .topbar,body.side-off .hud{left:8px}
+body.side-off .viewport{left:0}
+/* 放大时自动清屏：只留书页，双击复原时工具栏一起回来 */
+body.zoommode .topbar,body.zoommode .hud,body.zoommode .side,body.zoommode .side-scrim{display:none!important}
+body.zoommode .viewport{top:0!important;bottom:0!important;left:0!important}
+
+/* ---------- sheets ---------- */
+.sheet-scrim{position:fixed;inset:0;z-index:75;background:rgba(120,80,95,.24);opacity:0;pointer-events:none;transition:opacity .2s ease}
+.sheet-scrim.show{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:80;max-height:78vh;overflow:auto;
+  background:linear-gradient(180deg,#fffbfd 0%,#fff4f8 62%,#fff0f7 100%);border-radius:26px 26px 0 0;
+  border:1px solid var(--line);border-bottom:0;
+  box-shadow:0 -16px 46px rgba(150,80,110,.20);transform:translateY(102%);
+  transition:transform .22s cubic-bezier(.22,.8,.28,1);padding:10px 16px calc(22px + env(safe-area-inset-bottom));
+  -webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.sheet.show{transform:none}
+.sheet::before{content:'';display:block;width:46px;height:5px;border-radius:3px;background:#f0d3df;margin:-1px auto 10px}
+.sh-head{display:flex;align-items:center;gap:8px;margin:0 0 8px}
+.sh-head h3{margin:0;flex:1;font-size:16.5px;font-weight:750;letter-spacing:.01em}
+.sh-x{width:44px;height:44px;flex:none;border:0;border-radius:14px;background:transparent;color:var(--fg2);font-size:15px}
+.sh-sub{margin:0 0 10px;font-size:11.5px;color:var(--fg2);line-height:1.5}
+.sh-tip{margin:12px 0 0;font-size:11px;color:var(--fg2);line-height:1.6}
+.seg{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.seg button{min-height:44px;padding:0 13px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.76);
+  color:var(--fg2);font-size:12px;transition:color .16s ease,border-color .16s ease,background .16s ease}
+.seg button.on{border-color:var(--accent-line);color:var(--accent);background:var(--accent-soft);font-weight:600}
+.sheet-main{width:100%;height:48px;margin-top:10px;border-radius:16px;border:1px solid var(--accent-line);
+  background:var(--accent-soft);color:var(--accent);font-size:13.5px;font-weight:700;
+  position:sticky;bottom:0;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.opt{display:flex;width:100%;min-height:52px;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;
+  padding:0 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.8);
+  font-size:13px;color:var(--fg);text-align:left}
+.opt span{font-size:11px;color:var(--fg2);font-weight:400}
+.due-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(186,124,150,.13)}
+.due-go{flex:1;min-width:0;min-height:50px;display:flex;align-items:center;gap:10px;border:0;background:transparent;
+  padding:4px 2px;text-align:left;border-radius:12px}
+.pbadge{flex:none;min-width:46px;height:30px;padding:0 8px;border-radius:9px;display:grid;place-items:center;
+  font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent-line);
+  font-variant-numeric:tabular-nums}
+.dinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.dinfo b{font-size:12.5px;font-weight:600}
+.dinfo i{font-style:normal;font-size:10.5px;color:var(--fg2)}
+.due-sn{flex:none;height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);
+  background:rgba(255,255,255,.72);color:var(--fg2);font-size:11.5px}
+.empty{padding:18px 6px 8px;text-align:center;font-size:13px;line-height:1.8;color:var(--fg)}
+.empty span{font-size:11.5px;color:var(--fg2)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:2px 0 12px}
+.stats div{padding:11px 6px;border-radius:16px;background:rgba(255,255,255,.92);border:1px solid var(--line);
+  text-align:center;box-shadow:0 2px 8px rgba(158,86,118,.06)}
+.stats b{display:block;font-size:19px;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1.25}
+.stats span{font-size:10.5px;color:var(--fg2)}
+.sh-row{display:flex;gap:8px;margin-bottom:10px}
+.ghost{flex:1;height:46px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.76);
+  color:var(--fg);font-size:13px;font-weight:600}
+.ghost.danger{color:#a8402f;border-color:rgba(168,64,47,.30);background:rgba(255,248,246,.9)}
+.ghost.arm{background:rgba(184,72,111,.9);color:#fff;border-color:transparent}
+#exportBox{width:100%;height:132px;padding:10px 12px;border-radius:14px;border:1px solid var(--line);
+  background:rgba(255,255,255,.78);color:var(--fg2);font-size:10.5px;line-height:1.5;font-family:ui-monospace,Menlo,monospace;
+  resize:vertical;-webkit-user-select:text;user-select:text}
+#exportBox:focus{outline:2px solid var(--accent-soft);outline-offset:1px}
+
+/* ---------- feedback ---------- */
+.burst{position:fixed;z-index:85;width:78px;height:78px;margin:-39px 0 0 -39px;border-radius:50%;
+  display:grid;place-items:center;color:#fff;font-size:36px;font-weight:700;pointer-events:none;
+  background:radial-gradient(circle at 35% 30%,#a3cbbd,#79ab9a);box-shadow:0 10px 28px rgba(80,130,110,.32);
+  opacity:0;transform:scale(.62);transition:opacity .16s ease,transform .16s cubic-bezier(.2,1.3,.4,1)}
+.burst.go{opacity:1;transform:scale(1)}
+.toast{position:fixed;left:50%;top:calc(var(--barT) + env(safe-area-inset-top) + 10px);z-index:90;
+  max-width:calc(100vw - 32px);display:flex;align-items:center;gap:12px;padding:9px 10px 9px 15px;border-radius:16px;
+  background:rgba(255,250,252,.98);border:1px solid var(--line);box-shadow:0 10px 30px rgba(150,80,110,.18);
+  color:#5a3b48;font-size:12.5px;line-height:1.4;opacity:0;pointer-events:none;
+  transform:translate(-50%,-8px);transition:opacity .16s ease,transform .16s ease}
+.toast.show{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
+.toast span{min-width:0}
+.toast button{flex:none;min-height:36px;padding:0 11px;border-radius:11px;border:0;background:var(--accent-soft);
+  color:var(--accent);font-size:12px;font-weight:700}
+body.zen .topbar,body.zen .hud,body.zen .side,body.zen .side-scrim,body.zen .sheet,body.zen .sheet-scrim{display:none!important}
+body.zen .viewport{top:0;bottom:0;left:0}
+body.zen .slide .no,body.zen .slide .cnt{display:none}
+@media (min-width:1000px){
+  .sheet{border-radius:22px;bottom:10px;max-width:640px;margin:0 auto;box-shadow:0 -6px 40px rgba(150,80,110,.2)}
+}
+</style>
+</head>
+<body class="bs-candy">
+
+<header class="topbar">
+  <a class="ib" id="btnHome" href="index.html" aria-label="回首页">
+    <svg viewBox="0 0 24 24"><path d="M4.3 10.6L12 4.2l7.7 6.4V19a1.3 1.3 0 0 1-1.3 1.3h-3.9v-5.1H9.5v5.1H5.6A1.3 1.3 0 0 1 4.3 19v-8.4z"/></svg>
+  </a>
+  <button class="ib" id="btnSide" aria-label="目录">
+    <svg viewBox="0 0 24 24"><path d="M4.5 7h15M4.5 12h15M4.5 17h10"/></svg>
+  </button>
+  <div class="ttl"><div class="t1">冲刺背诵手册 · 下册</div><div class="t2">89 页原版 · 目录 · 背完打勾 · 双击放大</div></div>
+  <button class="today" id="btnToday" aria-label="今日待复习">
+    <svg viewBox="0 0 24 24"><path d="M7 4v3M17 4v3M4.5 9.5h15M6 6h12a1.5 1.5 0 0 1 1.5 1.5v11A1.5 1.5 0 0 1 18 20H6a1.5 1.5 0 0 1-1.5-1.5v-11A1.5 1.5 0 0 1 6 6z"/></svg>
+    <b id="todayN">0</b>
+  </button>
+  <button class="ib" id="btnRand" aria-label="随机抽查">
+    <svg viewBox="0 0 24 24"><rect x="4.2" y="4.2" width="15.6" height="15.6" rx="4.2"/><circle cx="9.1" cy="9.1" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="14.9" cy="14.9" r="1.15" fill="currentColor" stroke="none"/></svg>
+  </button>
+  <button class="ib" id="btnCloze" aria-label="挖空">
+    <svg viewBox="0 0 24 24"><path d="M4 20l3.5-.8L18 8.7 15.3 6 4.8 16.5 4 20z"/><path d="M13.6 7.7l2.7 2.7"/><path d="M4 20h5"/></svg>
+  </button>
+  <button class="ib" id="btnMore" aria-label="记录与设置">
+    <svg viewBox="0 0 24 24"><path d="M4.5 7h9M17.5 7h2M4.5 12h3M11.5 12h8M4.5 17h11M19.5 17h0"/><circle cx="15.5" cy="7" r="1.7"/><circle cx="9.5" cy="12" r="1.7"/><circle cx="17.5" cy="17" r="1.7"/></svg>
+  </button>
+</header>
+
+<main class="viewport" id="viewport"><div class="track" id="track"></div></main>
+
+<footer class="hud">
+  <button class="ib nav" id="prev" aria-label="上一页">
+    <svg viewBox="0 0 24 24"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg>
+  </button>
+  <div class="seek">
+    <input type="range" id="slider" min="1" max="89" value="1" aria-label="翻页进度">
+    <div class="idxrow"><span class="idx" id="idx">1 / 89</span><span class="lv" id="lv">未背</span><span class="lcnt" id="cntCur">0 空</span></div>
+  </div>
+  <input type="number" id="jump" min="1" max="89" inputmode="numeric" placeholder="跳页" aria-label="输入页码">
+  <button class="ib nav" id="next" aria-label="下一页">
+    <svg viewBox="0 0 24 24"><path d="M9.5 5.5L16 12l-6.5 6.5"/></svg>
+  </button>
+  <button class="ib wide" id="btnAgain" aria-label="再来一个" style="display:none">再来一个</button>
+  <button class="ib" id="btnZoom" aria-label="放大书页" aria-pressed="false">
+    <svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="5.6"/><path d="M15 15l4.2 4.2M8.4 10.8h4.8M10.8 8.4v4.8"/></svg>
+  </button>
+  <button class="donebtn" id="btnRecite" aria-label="背完了，记一次进度">
+    <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>背完了</span>
+  </button>
+</footer>
+
+<aside class="side" id="side" aria-label="目录">
+  <div class="side-head" style="position:relative">
+    <div class="bt">冲刺背诵手册 · 下册</div>
+    <div class="bs">共 89 页 · <span id="sideStat">已背 0 / 89 页</span></div>
+    <button class="side-x" id="btnSideX" aria-label="关闭目录">✕</button>
+  </div>
+  <div class="side-tabs">
+    <button data-tab="toc" class="on">目录</button>
+    <button data-tab="thumb">缩略图</button>
+  </div>
+  <div class="side-body" id="sideBody"></div>
+</aside>
+<div class="side-scrim" id="sideScrim"></div>
+
+<div class="sheet-scrim" id="sheetScrim"></div>
+
+<section class="sheet" id="clozeSheet" aria-label="挖空设置">
+  <div class="sh-head"><h3>背诵挖空</h3><button class="sh-x" data-close="1" aria-label="关闭">✕</button></div>
+  <div class="seg" id="styleSeg">
+    <button data-s="candy" class="on">糖果色</button>
+    <button data-s="blur">磨砂</button>
+    <button data-s="marker">荧光笔</button>
+    <button data-s="blank">留白填空</button>
+    <button data-s="hint">隐约提示</button>
+    <button data-s="dark">黑块</button>
+  </div>
+  <div class="seg" id="clozeSeg">
+    <button data-c="off">关闭挖空</button>
+    <button data-c="on">一键挖空</button>
+    <button data-c="reveal">全部显示</button>
+  </div>
+  <button class="sheet-main" id="btnDone">完成</button>
+</section>
+
+<section class="sheet" id="todaySheet" aria-label="今日待复习">
+  <div class="sh-head"><h3>今日待复习</h3><button class="sh-x" data-close="1" aria-label="关闭">✕</button></div>
+  <p class="sh-sub" id="todaySub"></p>
+  <div id="dueList"></div>
+  <p class="sh-tip">点一行直接跳过去。「太熟了」= 把这页推后 7 天再背。背完一次等级 +1，间隔依次是 1 / 2 / 4 / 7 / 15 / 30 天。</p>
+</section>
+
+<section class="sheet" id="randSheet" aria-label="随机抽查">
+  <div class="sh-head"><h3>随机抽查</h3><button class="sh-x" data-close="1" aria-label="关闭">✕</button></div>
+  <p class="sh-sub">挑一个范围，随机跳一页开始背。</p>
+  <button class="opt" id="randAll" data-m="all">全部 <span>89 页</span></button>
+  <button class="opt" id="randSec" data-m="sec">当前部分 <span></span></button>
+  <button class="opt" id="randNew" data-m="new">只抽没背过的 <span></span></button>
+  <p class="sh-tip">抽查模式下底栏会多一个「再来一个」，再点顶栏的抽查图标可以退出。</p>
+</section>
+
+<section class="sheet" id="setSheet" aria-label="记录与设置">
+  <div class="sh-head"><h3>记录</h3><button class="sh-x" data-close="1" aria-label="关闭">✕</button></div>
+  <div class="stats" id="setStat"></div>
+  <div class="sh-row">
+    <button class="ghost" id="btnCopy">复制记录</button>
+    <button class="ghost" id="btnDl">下载 JSON</button>
+    <button class="ghost danger" id="btnReset">清空记录</button>
+  </div>
+  <textarea id="exportBox" readonly spellcheck="false" aria-label="背诵记录 JSON"></textarea>
+  <p class="sh-tip">记录只存在这台设备的浏览器里（localStorage），不会上传、换设备不同步。清空前先「复制记录」或「下载 JSON」留一份。</p>
+</section>
+
+<div class="burst" id="burst">✓</div>
+<div class="toast" id="toast"></div>
+
+<script id="blankData" type="application/json">{"7":[{"x":10.25,"y":9.07,"w":69.12,"h":3.64,"t":"第01部分选择题4大核心线索背诵总结"},{"x":2.44,"y":24.86,"w":27.44,"h":2.54,"t":"1．党的一大（1921)"},{"x":38.44,"y":44.51,"w":30.44,"h":2.61,"t":"决定首先集中精力组织工人。"},{"x":2.62,"y":47.94,"w":27.69,"h":2.61,"t":"2.党的二大（1922）"},{"x":5.38,"y":53.57,"w":46.75,"h":2.82,"t":"第一次提出了反帝反封建的民主革命纲领"},{"x":6.44,"y":59.48,"w":2.55,"h":2.47,"t":"·"},{"x":13.81,"y":59.48,"w":9.81,"h":2.47,"t":"最高纲领"},{"x":6.81,"y":61.74,"w":36.62,"h":2.95,"t":"·党当前阶段的纲领（最低纲领）"},{"x":6.75,"y":67.17,"w":2.37,"h":2.88,"t":"》"},{"x":31.5,"y":75.96,"w":17.44,"h":2.47,"t":"群众路线的方法。"},{"x":25.56,"y":78.09,"w":23.88,"h":3.02,"t":"民主联合战线的主张"},{"x":3.62,"y":84.62,"w":27.75,"h":2.61,"t":"3.党的三大（1923)"},{"x":34.88,"y":87.09,"w":22.31,"h":3.16,"t":"个人名义加人国民党"}],"8":[{"x":51.69,"y":6.46,"w":45.5,"h":2.61,"t":"党必须在政治上、思想上、组织上保持自"},{"x":13.31,"y":9.34,"w":12.25,"h":2.2,"t":"己的独立性。"},{"x":10.5,"y":12.43,"w":30.88,"h":2.54,"t":"4.国民党一大（1924)"},{"x":35.44,"y":15.52,"w":7.69,"h":2.54,"t":"三民主义"},{"x":49.25,"y":15.52,"w":9.62,"h":2.54,"t":"新的解释。"},{"x":13.91,"y":18.34,"w":2.38,"h":2.75,"t":"》"},{"x":14.11,"y":23.83,"w":2.56,"h":2.68,"t":"·"},{"x":13.91,"y":29.19,"w":2.4,"h":3.02,"t":"》"},{"x":84.69,"y":35.44,"w":4.62,"h":2.75,"t":"因而"},{"x":62.12,"y":40.87,"w":11.56,"h":2.68,"t":"大革命政策。"},{"x":40.94,"y":43.68,"w":38.0,"h":2.75,"t":"标志着第一次国共合作的正式形成。"},{"x":10.06,"y":46.63,"w":27.62,"h":2.82,"t":"5.党的四大（1925)"},{"x":12.62,"y":49.86,"w":17.38,"h":3.09,"t":"最重要的贡献是"}],"9":[{"x":2.44,"y":18.04,"w":27.88,"h":2.0,"t":"6.八七会议（1927）"},{"x":38.62,"y":21.07,"w":12.5,"h":2.27,"t":"陈独秀右倾"},{"x":5.19,"y":23.9,"w":7.19,"h":2.27,"t":"提出了"},{"x":5.25,"y":29.82,"w":7.19,"h":2.13,"t":"确定了"},{"x":39.12,"y":29.82,"w":3.94,"h":2.13,"t":"针。"},{"x":41.94,"y":32.37,"w":29.12,"h":2.41,"t":"政权是由枪杆子中取得的"},{"x":31.31,"y":37.95,"w":50.88,"h":2.41,"t":"革命失败到土地革命战争兴起的历史性转变。"},{"x":2.81,"y":41.6,"w":27.88,"h":2.0,"t":"7.古田会议（1929）"},{"x":13.12,"y":44.7,"w":22.88,"h":2.27,"t":"思想建党、政治建军"},{"x":18.56,"y":47.45,"w":43.25,"h":2.34,"t":"要用无产阶级思想进行军队和党的建设。"},{"x":23.56,"y":50.14,"w":9.88,"h":2.48,"t":"思想建设"},{"x":63.88,"y":55.65,"w":26.38,"h":2.62,"t":"执行革命的政治任务的"},{"x":5.75,"y":58.88,"w":9.81,"h":2.27,"t":"武装集团”"},{"x":16.06,"y":64.12,"w":36.12,"h":2.62,"t":"确立了马克思主义建党建军原则，"},{"x":3.38,"y":73.14,"w":27.94,"h":2.41,"t":"8.遵义会议（1935）"},{"x":42.19,"y":76.1,"w":22.81,"h":2.62,"t":"军事问题和组织问题"},{"x":27.25,"y":81.54,"w":56.94,"h":2.82,"t":"开启了党独立自主解决中国革命实际问题的新阶段，"},{"x":14.25,"y":84.71,"w":33.0,"h":2.48,"t":"共产党在政治上开始走向成熟。"},{"x":6.44,"y":87.12,"w":7.25,"h":2.82,"t":"确立了"},{"x":60.69,"y":87.12,"w":9.62,"h":2.82,"t":"开始确立"},{"x":65.94,"y":89.94,"w":9.75,"h":2.75,"t":"开始形成"}],"10":[{"x":33.75,"y":15.77,"w":19.94,"h":2.07,"t":"生死攸关的转折点"},{"x":79.75,"y":15.77,"w":17.75,"h":2.07,"t":"挽救了中国共产"},{"x":12.94,"y":18.73,"w":48.5,"h":2.07,"t":"党、挽救了中国工农红军、挽救了中国革命。"},{"x":25.75,"y":21.83,"w":9.75,"h":1.72,"t":"鲜明特点"},{"x":10.25,"y":27.75,"w":30.94,"h":2.07,"t":"9.瓦窑堡会议（1935）"},{"x":54.0,"y":31.06,"w":20.25,"h":1.93,"t":"抗日民族统一战线"},{"x":46.5,"y":37.26,"w":7.0,"h":1.93,"t":"可能性"},{"x":13.73,"y":40.5,"w":2.57,"h":2.0,"t":"·"},{"x":13.73,"y":46.14,"w":2.63,"h":2.13,"t":"·"},{"x":12.62,"y":51.86,"w":33.62,"h":2.2,"t":"批判了“左”倾关门主义错误"},{"x":92.31,"y":51.86,"w":5.0,"h":2.2,"t":"领导"},{"x":12.75,"y":54.75,"w":4.69,"h":2.2,"t":"作用"},{"x":38.38,"y":54.75,"w":4.81,"h":2.2,"t":"错误"},{"x":80.94,"y":57.64,"w":14.62,"h":2.13,"t":"“人民共和国”"},{"x":10.19,"y":63.64,"w":29.25,"h":2.27,"t":"10.洛川会议（1937）"},{"x":20.12,"y":66.87,"w":20.38,"h":2.34,"t":"抗日救国十大纲领"},{"x":74.31,"y":66.87,"w":4.75,"h":2.34,"t":"关键"},{"x":25.44,"y":69.9,"w":22.69,"h":1.93,"t":"全面的全民族的抗战。"},{"x":22.81,"y":72.66,"w":43.06,"h":2.2,"t":"全国军事的总动员、全国人民的总动员。"},{"x":35.62,"y":81.13,"w":20.0,"h":2.27,"t":"无产阶级的领导权"},{"x":9.81,"y":86.98,"w":41.62,"h":2.48,"t":"11．党的六届六中全会（1938）"},{"x":12.19,"y":90.36,"w":47.44,"h":2.27,"t":"第一次明确提出了“马克思主义的中国化”"}],"11":[{"x":17.62,"y":6.75,"w":17.75,"h":1.72,"t":"决定中国之命运"},{"x":46.44,"y":6.75,"w":31.19,"h":1.72,"t":"基本克服了王明的右倾错误"},{"x":2.31,"y":24.24,"w":41.94,"h":1.93,"t":"12.党的六届七中全会（1945）"},{"x":13.63,"y":27.27,"w":31.13,"h":2.2,"t":"《关于若干历史问题的决议》"},{"x":17.56,"y":38.91,"w":28.12,"h":1.86,"t":"延安整风运动的重大成果。"},{"x":7.25,"y":41.6,"w":82.62,"h":2.07,"t":"全党尤其是党的高级干部对中国民主革命基本问题的认识达到在马克思列"},{"x":4.62,"y":44.77,"w":23.0,"h":1.79,"t":"宁主义基础上的一致。"},{"x":4.62,"y":52.82,"w":7.81,"h":2.27,"t":"标志着"},{"x":49.44,"y":52.82,"w":4.44,"h":2.27,"t":"七大"},{"x":68.38,"y":52.82,"w":21.69,"h":2.27,"t":"在思想上做了充分"},{"x":2.25,"y":59.37,"w":29.56,"h":2.0,"t":"13.党的七大（1945）"},{"x":23.0,"y":65.08,"w":10.38,"h":2.27,"t":"政治路线"},{"x":88.44,"y":70.66,"w":1.62,"h":2.2,"t":"三"},{"x":4.88,"y":73.55,"w":7.44,"h":2.13,"t":"大作风"},{"x":64.38,"y":82.02,"w":25.81,"h":2.2,"t":"把毛泽东思想确立为党"},{"x":4.94,"y":84.85,"w":56.69,"h":2.2,"t":"的指导思想并写人党章，是中共七大的历史性贡献。"},{"x":4.81,"y":87.74,"w":46.44,"h":2.07,"t":"标志着党在政治上思想上组织上走向成熟。"},{"x":7.56,"y":90.22,"w":59.25,"h":2.48,"t":"为建立新民主主义的新中国制定了正确路线方针政策"}],"12":[{"x":15.81,"y":12.47,"w":31.75,"h":2.13,"t":"团结的大会，胜利的大会”"},{"x":9.5,"y":18.46,"w":42.06,"h":2.2,"t":"14.党的七届二中全会（1949）"},{"x":19.88,"y":21.69,"w":77.5,"h":2.07,"t":"召开于中国革命即将取得全国胜利，中国共产党即将成为执政党的"},{"x":19.62,"y":30.3,"w":15.38,"h":1.86,"t":"党的工作重心"},{"x":69.0,"y":33.06,"w":28.25,"h":2.13,"t":"中国由农业国转变为工业"},{"x":11.94,"y":35.95,"w":72.25,"h":1.93,"t":"国、由新民主主义社会转变为社会主义社会的总任务和主要途径。"},{"x":33.31,"y":38.71,"w":12.5,"h":1.93,"t":"“两个务必”"},{"x":9.31,"y":44.49,"w":42.12,"h":2.41,"t":"15.党的七届三中全会（1950）"},{"x":48.25,"y":47.93,"w":9.88,"h":2.13,"t":"中心任务"},{"x":9.25,"y":53.99,"w":29.62,"h":2.07,"t":"16.党的八大（1956）"},{"x":61.25,"y":57.09,"w":22.75,"h":2.27,"t":"主要矛盾和主要任务。"},{"x":12.44,"y":59.85,"w":2.65,"h":2.27,"t":"·"},{"x":28.31,"y":59.85,"w":9.56,"h":2.27,"t":"主要矛盾"},{"x":12.64,"y":68.39,"w":2.66,"h":2.41,"t":"·"},{"x":28.19,"y":68.39,"w":9.69,"h":2.41,"t":"主要任务"},{"x":12.81,"y":73.97,"w":11.88,"h":2.2,"t":"·根本任务"},{"x":40.31,"y":79.34,"w":56.56,"h":2.48,"t":"既反保守又反冒进，即在综合平衡中稳步前进的"},{"x":37.31,"y":84.99,"w":43.75,"h":2.48,"t":"扩大社会主义民主、健全社会主义法制"},{"x":25.62,"y":87.88,"w":31.5,"h":2.13,"t":"“有法可依”和“有法必依”"}],"13":[{"x":79.88,"y":12.28,"w":10.31,"h":1.72,"t":"克服苏联"},{"x":4.75,"y":14.97,"w":10.12,"h":2.07,"t":"模式弊端"},{"x":46.31,"y":14.97,"w":4.88,"h":2.07,"t":"突破"},{"x":7.31,"y":20.9,"w":4.94,"h":1.72,"t":"探索"},{"x":5.91,"y":23.59,"w":2.57,"h":1.79,"t":"·"},{"x":5.7,"y":29.1,"w":2.58,"h":2.0,"t":"·"},{"x":2.38,"y":32.41,"w":42.0,"h":2.14,"t":"17.党的八届九中全会（1961）"},{"x":2.38,"y":39.03,"w":45.12,"h":1.93,"t":"18.党的十一届三中全会（1978）"},{"x":34.12,"y":50.55,"w":55.88,"h":2.0,"t":"重新确立了马克思主义的思想路线、政治路线和"},{"x":20.38,"y":61.79,"w":43.75,"h":2.0,"t":"邓小平同志为核心的党的中央领导集体"},{"x":74.81,"y":61.79,"w":15.19,"h":2.0,"t":"社会主义改革"},{"x":4.88,"y":64.69,"w":12.5,"h":2.07,"t":"开放的序幕。"},{"x":41.69,"y":67.31,"w":48.38,"h":2.14,"t":"改革开放和社会主义现代化建设的历史新"},{"x":87.38,"y":73.31,"w":2.06,"h":2.14,"t":"解"},{"x":2.81,"y":75.86,"w":60.25,"h":2.28,"t":"放思想、实事求是，坚持实践标准提到党的思想路线的高度"},{"x":49.5,"y":81.1,"w":6.38,"h":2.07,"t":"宣言书"},{"x":14.5,"y":83.66,"w":8.94,"h":2.21,"t":"主题报告"},{"x":2.44,"y":87.31,"w":45.06,"h":2.28,"t":"19.党的理论工作务虚会（1979）"}],"14":[{"x":53.56,"y":6.34,"w":10.06,"h":2.21,"t":"根本前提"},{"x":8.94,"y":12.62,"w":45.5,"h":2.07,"t":"20.党的十一届六中全会（1981）"},{"x":12.44,"y":18.69,"w":2.45,"h":2.07,"t":"·"},{"x":78.31,"y":18.69,"w":14.56,"h":2.07,"t":"最核心的一条"},{"x":12.64,"y":21.59,"w":2.4,"h":2.07,"t":"》"},{"x":35.25,"y":35.93,"w":37.44,"h":1.93,"t":"评价了毛泽东同志和毛泽东思想"},{"x":24.0,"y":41.66,"w":38.38,"h":2.07,"t":"毛泽东思想的科学体系和活的灵魂"},{"x":66.06,"y":50.21,"w":30.94,"h":1.86,"t":"实质上初步提出了在中国建"},{"x":11.75,"y":53.17,"w":54.06,"h":1.72,"t":"设什么样的社会主义和怎样建设社会主义的问题。"},{"x":12.54,"y":55.93,"w":2.68,"h":1.93,"t":"·"},{"x":54.5,"y":58.83,"w":42.38,"h":1.86,"t":"为形成社会主义市场经济理论开辟了"},{"x":12.64,"y":64.62,"w":2.64,"h":1.79,"t":"·"},{"x":41.81,"y":64.62,"w":9.38,"h":1.79,"t":"主要矛盾"},{"x":31.37,"y":72.97,"w":49.12,"h":1.93,"t":"标志着党在指导思想上拨乱反正的胜利完成。"},{"x":8.81,"y":76.28,"w":32.94,"h":1.93,"t":"21.党的十二大（1982）"},{"x":11.56,"y":79.59,"w":59.56,"h":1.72,"t":"第一次提出了“建设有中国特色的社会主义”命题。"}],"15":[{"x":2.88,"y":6.63,"w":45.19,"h":2.07,"t":"22.党的十二届三中全会（1984）"},{"x":31.44,"y":12.91,"w":33.12,"h":2.0,"t":"社会主义经济理论的重大突破。"},{"x":2.94,"y":16.23,"w":32.75,"h":2.07,"t":"23.党的十三大（1987）"},{"x":44.25,"y":19.34,"w":7.38,"h":2.21,"t":"第一次"},{"x":80.5,"y":22.31,"w":9.94,"h":2.07,"t":"出发点和"},{"x":5.69,"y":25.28,"w":9.94,"h":2.0,"t":"根本依据"},{"x":16.31,"y":28.11,"w":9.69,"h":2.14,"t":"首要问题"},{"x":72.69,"y":28.11,"w":9.94,"h":2.14,"t":"根本依据。"},{"x":18.12,"y":30.87,"w":52.38,"h":2.42,"t":"第一次比较系统地阐述了关于社会主义初级阶段"},{"x":48.38,"y":33.84,"w":42.12,"h":2.14,"t":"基本路线。第一次对中国特色社会主义"},{"x":5.69,"y":37.15,"w":14.88,"h":2.14,"t":"理论进行系统"},{"x":33.19,"y":37.15,"w":32.38,"h":2.14,"t":"标志着邓小平理论轮廓的形"},{"x":6.58,"y":40.33,"w":2.65,"h":2.21,"t":"·"},{"x":6.79,"y":46.34,"w":2.64,"h":2.0,"t":"·"},{"x":69.62,"y":49.17,"w":4.94,"h":2.07,"t":"特指"},{"x":7.1,"y":54.83,"w":2.38,"h":2.14,"t":"》"},{"x":3.38,"y":75.48,"w":29.62,"h":2.07,"t":"24.南方谈话（1992）"},{"x":7.0,"y":84.32,"w":2.63,"h":2.35,"t":"·"},{"x":24.94,"y":84.32,"w":18.38,"h":2.35,"t":"从理论上突破了"},{"x":9.44,"y":87.15,"w":17.5,"h":2.28,"t":"从根本上解除了"}],"16":[{"x":13.44,"y":6.01,"w":59.56,"h":2.14,"t":"·标志着邓小平同志的社会主义市场经济理论的形成"},{"x":40.75,"y":31.49,"w":12.25,"h":2.14,"t":"集大成之作，"},{"x":76.81,"y":31.49,"w":9.88,"h":2.14,"t":"向成熟。"},{"x":69.38,"y":34.39,"w":6.94,"h":2.21,"t":"又一个"},{"x":17.31,"y":37.29,"w":7.38,"h":1.8,"t":"宣言书。"},{"x":84.44,"y":39.92,"w":12.62,"h":2.35,"t":"把改革开放"},{"x":12.44,"y":42.61,"w":27.75,"h":2.21,"t":"和现代化建设推向新阶段。"},{"x":9.62,"y":45.65,"w":32.62,"h":2.49,"t":"25.党的十四大（1992)"},{"x":12.25,"y":52.0,"w":66.62,"h":2.21,"t":"确定我国经济体制改革的目标是建立社会主义市场经济体制。"},{"x":12.44,"y":57.67,"w":49.56,"h":2.35,"t":"以邓小平同志南方谈话和党的十四大为标志，"},{"x":9.62,"y":66.23,"w":45.12,"h":2.56,"t":"26.党的十四届三中全会（1993）"},{"x":12.38,"y":78.18,"w":50.12,"h":2.14,"t":"勾画了社会主义市场经济体制的基本框架。"},{"x":9.69,"y":83.7,"w":32.69,"h":2.56,"t":"27.党的十五大（1997)"},{"x":12.62,"y":87.15,"w":38.94,"h":2.49,"t":"正式提出“邓小平理论”这一概念"}],"17":[{"x":10.81,"y":6.39,"w":38.19,"h":1.92,"t":"党在社会主义初级阶段的基本纲领。"},{"x":3.06,"y":12.29,"w":32.56,"h":2.34,"t":"28.党的十八大（2012)"},{"x":3.12,"y":21.84,"w":44.94,"h":2.27,"t":"29.党的十八届三中全会（2013）"},{"x":5.81,"y":25.07,"w":84.38,"h":2.2,"t":"实现改革由局部探索、破冰突围到系统集成、全面深化的转变，开创了我国"},{"x":5.88,"y":28.16,"w":17.5,"h":1.99,"t":"改革开放新局面。"},{"x":17.56,"y":47.8,"w":64.06,"h":2.4,"t":"“使市场在资源配置中起决定性作用和更好发挥政府作用”"},{"x":3.75,"y":59.68,"w":1.88,"h":2.47,"t":"1"},{"x":7.69,"y":59.68,"w":9.0,"h":2.47,"t":"林则徐"},{"x":16.44,"y":65.73,"w":12.5,"h":2.4,"t":"睁眼看世界"},{"x":11.62,"y":71.7,"w":9.94,"h":2.82,"t":"海国图志"},{"x":37.56,"y":71.7,"w":20.38,"h":2.82,"t":"“师夷长技以制夷”"},{"x":6.62,"y":77.88,"w":6.94,"h":2.27,"t":"开创了"},{"x":24.44,"y":77.88,"w":20.19,"h":2.27,"t":"向西方学习的新风。"},{"x":16.88,"y":86.74,"w":12.31,"h":2.75,"t":"其共同特点"}],"18":[{"x":78.25,"y":6.11,"w":18.44,"h":1.92,"t":"同西方国家进行"},{"x":12.25,"y":8.93,"w":43.12,"h":1.85,"t":"“商战”，设立议院，实行“君民共主"},{"x":12.38,"y":17.72,"w":4.81,"h":2.13,"t":"最先"},{"x":44.75,"y":22.94,"w":25.44,"h":2.13,"t":"“中学为体，西学为用”"},{"x":9.69,"y":42.79,"w":1.44,"h":2.47,"t":"6"},{"x":14.0,"y":42.79,"w":8.88,"h":2.47,"t":"孙中山"},{"x":30.5,"y":46.22,"w":23.38,"h":2.27,"t":"民主革命的伟大先驱"},{"x":62.38,"y":46.22,"w":34.5,"h":2.27,"t":"维护民主共和制度和国家完整"},{"x":17.69,"y":51.51,"w":22.56,"h":2.06,"t":"民主革命、民主共和。"},{"x":13.22,"y":54.12,"w":2.56,"h":2.2,"t":"·"},{"x":13.32,"y":56.73,"w":2.55,"h":2.34,"t":"·"},{"x":13.42,"y":59.27,"w":2.55,"h":2.27,"t":"·"},{"x":13.42,"y":62.02,"w":2.55,"h":2.27,"t":"·"},{"x":13.22,"y":64.63,"w":2.36,"h":2.27,"t":"》"},{"x":9.75,"y":70.26,"w":1.31,"h":2.2,"t":"7"},{"x":14.0,"y":70.26,"w":8.88,"h":2.2,"t":"陈独秀"},{"x":12.5,"y":78.43,"w":12.25,"h":2.61,"t":"大革命后期"},{"x":30.31,"y":78.43,"w":4.75,"h":2.61,"t":"右倾"},{"x":12.25,"y":89.77,"w":4.75,"h":2.47,"t":"率先"}],"19":[{"x":60.0,"y":6.18,"w":28.62,"h":2.4,"t":"第一次正确地阐述了十月"},{"x":5.25,"y":9.27,"w":12.44,"h":1.99,"t":"革命的性质。"},{"x":13.12,"y":17.24,"w":20.44,"h":2.4,"t":"我的马克思主义观"},{"x":5.56,"y":22.66,"w":75.94,"h":2.34,"t":"比较系统的介绍，标志着马克思主义在中国进人比较系统的传播阶段"},{"x":2.75,"y":28.64,"w":19.38,"h":2.4,"t":"9.毛泽东同志"},{"x":34.31,"y":38.12,"w":25.0,"h":2.13,"t":"新民主主义革命基本思想"},{"x":34.38,"y":44.37,"w":33.56,"h":2.06,"t":"农村包围城市、武装夺取政权的思想"},{"x":34.44,"y":49.93,"w":20.5,"h":2.13,"t":"新民主主义革命理论"},{"x":53.0,"y":55.22,"w":6.69,"h":2.4,"t":"提出了"},{"x":39.31,"y":57.83,"w":11.19,"h":2.34,"t":"第二次结合"},{"x":65.38,"y":89.7,"w":22.62,"h":3.02,"t":"提出了工农武装割据"}],"20":[{"x":88.62,"y":41.21,"w":7.38,"h":2.13,"t":"无疑义"},{"x":12.12,"y":44.23,"w":25.19,"h":1.85,"t":"地是促进全国革命高潮"},{"x":12.31,"y":46.98,"w":40.69,"h":2.06,"t":"回答了“红旗到底打得多久”的疑问。"},{"x":12.12,"y":67.1,"w":9.88,"h":2.13,"t":"初步界定"},{"x":72.81,"y":69.99,"w":23.12,"h":2.13,"t":"为反对当时红军中的"},{"x":12.06,"y":72.6,"w":15.0,"h":2.4,"t":"教条主义思想"},{"x":63.0,"y":72.6,"w":33.0,"h":2.4,"t":"独立自主思想的最初的、首次"},{"x":22.19,"y":78.37,"w":12.31,"h":2.4,"t":"初步形成了"},{"x":32.31,"y":81.25,"w":40.56,"h":2.27,"t":"标志毛泽东同志哲学思想的初步形成。"},{"x":12.06,"y":86.81,"w":37.0,"h":2.47,"t":"阐明党的抗日民族统一战线的新政策，"},{"x":12.06,"y":90.18,"w":40.44,"h":1.92,"t":"系统地解决了党的政治路线上的问题"}],"21":[{"x":4.94,"y":31.68,"w":82.81,"h":2.27,"t":"科学地阐明了党的马克思主义的思想路线。对党的思想路线作了系统的哲学论证。"},{"x":4.94,"y":37.26,"w":67.06,"h":2.27,"t":"分析中日对比的特点，指出抗战最后的胜利将是属于中国的"},{"x":40.81,"y":57.3,"w":49.12,"h":1.93,"t":"战略相持阶段，是中国抗日战争取得最后胜"},{"x":4.56,"y":60.19,"w":20.44,"h":1.93,"t":"利的最关键的阶段。"},{"x":4.5,"y":63.02,"w":35.44,"h":1.93,"t":"驳斥了“速胜论”和“亡国论”"},{"x":49.56,"y":63.02,"w":20.62,"h":1.93,"t":"兵民是胜利之本”"},{"x":55.94,"y":68.66,"w":13.12,"h":1.72,"t":"最终确立了"},{"x":63.31,"y":79.75,"w":8.62,"h":1.93,"t":"个法宝。"},{"x":40.31,"y":82.37,"w":7.44,"h":2.2,"t":"：第一次"},{"x":28.69,"y":88.02,"w":7.56,"h":2.2,"t":"：第一"}],"22":[{"x":49.06,"y":6.47,"w":4.56,"h":2.62,"t":"首先"},{"x":77.1,"y":9.02,"w":12.06,"h":3.1,"t":"普遍展开。"},{"x":49.19,"y":22.52,"w":47.56,"h":2.96,"t":"：完整地表述了新民主主义革命总路线的内"},{"x":14.75,"y":25.34,"w":2.19,"h":2.69,"t":"容"},{"x":89.5,"y":37.4,"w":7.5,"h":2.62,"t":"共同构"},{"x":11.88,"y":40.43,"w":64.81,"h":2.41,"t":"成建立新中国的两块基石，共同构成《共同纲领》的基础。"},{"x":68.94,"y":51.58,"w":28.12,"h":2.48,"t":"以苏为鉴、独立自主地探"},{"x":11.81,"y":54.75,"w":41.19,"h":2.13,"t":"索适合中国情况的社会主义建设道路。"},{"x":22.31,"y":57.37,"w":9.81,"h":2.34,"t":"基本方针"},{"x":61.31,"y":63.02,"w":35.81,"h":2.13,"t":"开始探索中国自已的社会主义建"},{"x":12.06,"y":65.91,"w":15.0,"h":2.07,"t":"设道路的标志"},{"x":32.75,"y":79.96,"w":33.25,"h":1.93,"t":"有别于苏联的中国工业化道路。"},{"x":53.25,"y":85.33,"w":43.56,"h":2.13,"t":"社会主义社会基本矛盾是非对抗性的，"},{"x":12.06,"y":88.29,"w":74.5,"h":1.86,"t":"可以通过社会主义制度本身的自我调整和自我完善不断地得到解决。"}],"23":[{"x":8.38,"y":6.87,"w":20.06,"h":2.06,"t":"两类性质完全不同"},{"x":59.62,"y":6.87,"w":10.0,"h":2.06,"t":"相互转化。"},{"x":6.66,"y":9.68,"w":2.55,"h":1.85,"t":"·"},{"x":6.66,"y":12.5,"w":2.56,"h":1.92,"t":"·"},{"x":6.76,"y":15.38,"w":2.55,"h":1.79,"t":"·"},{"x":6.76,"y":18.13,"w":2.57,"h":2.06,"t":"·"},{"x":6.56,"y":21.09,"w":2.31,"h":1.92,"t":"》"},{"x":6.66,"y":23.9,"w":2.62,"h":2.06,"t":"·"},{"x":6.76,"y":29.74,"w":2.55,"h":1.72,"t":"·"},{"x":6.76,"y":32.55,"w":2.31,"h":1.72,"t":"》"},{"x":46.81,"y":35.3,"w":33.06,"h":1.85,"t":"社会主义国家政治生活的主题"},{"x":10.81,"y":38.32,"w":12.44,"h":1.72,"t":"根本着眼点"},{"x":3.44,"y":61.2,"w":20.75,"h":2.34,"t":"10.邓小平同志"},{"x":85.5,"y":67.24,"w":4.69,"h":1.99,"t":"领导"},{"x":4.0,"y":69.99,"w":86.31,"h":2.2,"t":"了伟大历史转折、推动实现了马克思主义中国化新的飞跃、带领党和人民开辟"},{"x":4.19,"y":72.87,"w":86.12,"h":1.99,"t":"了社会主义现代化建设新局面、确立了实现祖国完全统一的正确路径、坚定捍"},{"x":3.5,"y":75.89,"w":27.75,"h":1.99,"t":"卫了光辉的社会主义旗帜。"},{"x":3.5,"y":79.19,"w":20.88,"h":1.92,"t":"11.江泽民同志"}],"24":[{"x":10.12,"y":27.27,"w":25.69,"h":2.4,"t":"1.《天朝田亩制度》"},{"x":9.81,"y":53.71,"w":31.87,"h":2.34,"t":"2.三民主义之民生主义"},{"x":12.69,"y":65.73,"w":84.25,"h":2.06,"t":"“平均地权”并非将土地所有权分给农民，没有正面触及封建土地所有制，"},{"x":13.0,"y":68.75,"w":32.44,"h":1.92,"t":"不能满足广大农民的土地要求。"},{"x":9.88,"y":71.77,"w":34.81,"h":2.13,"t":"3.新三民主义之民生主义"},{"x":9.88,"y":81.87,"w":22.44,"h":1.99,"t":"4.井冈山土地法"},{"x":29.69,"y":81.94,"w":2.62,"h":1.85,"t":"土"},{"x":22.81,"y":85.03,"w":25.19,"h":2.2,"t":"党历史上第一个土地法"}],"25":[{"x":28.81,"y":6.63,"w":28.0,"h":2.28,"t":"并不适合中国农村的实际。"},{"x":2.5,"y":21.82,"w":56.94,"h":2.14,"t":"5.土地革命中的阶级路线和土地分配方法"},{"x":46.5,"y":25.0,"w":9.94,"h":2.21,"t":"限制富农"},{"x":2.25,"y":34.39,"w":16.44,"h":1.93,"t":"6.减租减息抗"},{"x":54.12,"y":40.4,"w":15.06,"h":2.21,"t":"削弱封建剥削"},{"x":4.88,"y":46.06,"w":66.94,"h":2.49,"t":"有利于巩固抗日民族统一战线，推动抗日民主根据地的发展。"},{"x":2.19,"y":49.65,"w":19.94,"h":2.0,"t":"7.《五四指示》"},{"x":58.44,"y":64.3,"w":31.25,"h":2.14,"t":"改变为实行“耕者有其田”"},{"x":25.12,"y":70.03,"w":7.44,"h":2.14,"t":"标志着"},{"x":29.62,"y":76.24,"w":1.5,"h":1.93,"t":"）"},{"x":1.75,"y":76.31,"w":29.38,"h":1.93,"t":"8.《中国土地法大纲》"},{"x":4.44,"y":79.28,"w":9.94,"h":2.28,"t":"明确规定"},{"x":65.81,"y":79.28,"w":23.81,"h":2.28,"t":"实行耕者有其田的土"},{"x":4.38,"y":82.25,"w":7.38,"h":2.07,"t":"地制度"}],"26":[{"x":8.94,"y":10.29,"w":45.0,"h":2.42,"t":"9.《中华人民共和国土地改革法》"},{"x":18.94,"y":13.33,"w":16.88,"h":2.56,"t":"这次土改的目的"},{"x":92.12,"y":19.06,"w":4.81,"h":2.49,"t":"改变"},{"x":12.12,"y":22.31,"w":25.12,"h":2.14,"t":"为保存富农经济的政策。"},{"x":35.12,"y":24.79,"w":61.94,"h":2.49,"t":"我国历史上规模最大，也是历次土改运动中进行得最好"},{"x":9.5,"y":31.01,"w":27.12,"h":2.35,"t":"10.农业合作化运动"},{"x":87.19,"y":34.12,"w":9.88,"h":2.42,"t":"个体经济"},{"x":11.94,"y":37.22,"w":33.19,"h":2.14,"t":"的积极性和互助合作的积极性。"},{"x":19.75,"y":42.61,"w":20.44,"h":2.56,"t":"方式道路是合作化"},{"x":48.69,"y":42.61,"w":43.19,"h":2.56,"t":"自愿互利、典型示范和国家帮助的原则。"},{"x":12.91,"y":48.69,"w":2.55,"h":1.93,"t":"·"},{"x":13.02,"y":51.31,"w":2.57,"h":2.21,"t":"·"},{"x":12.91,"y":54.07,"w":2.57,"h":2.35,"t":"·"},{"x":9.81,"y":57.39,"w":24.0,"h":2.42,"t":"11．农村改革开放"},{"x":17.44,"y":66.09,"w":76.06,"h":2.56,"t":"明确指出包产到户、包干到户都是社会主义集体经济的生产责任制。"},{"x":35.62,"y":68.99,"w":4.75,"h":2.28,"t":"实质"},{"x":40.88,"y":71.69,"w":35.81,"h":2.42,"t":"土地集体所有权和经营权的分离"},{"x":13.94,"y":77.35,"w":8.38,"h":2.42,"t":"三权分置"},{"x":53.81,"y":80.18,"w":30.81,"h":2.42,"t":"农村改革又一重大制度创新"},{"x":80.0,"y":83.01,"w":4.56,"h":2.35,"t":"主线"},{"x":33.12,"y":85.84,"w":12.56,"h":2.14,"t":"最大的政策"},{"x":69.44,"y":85.84,"w":20.31,"h":2.14,"t":"农村基本经营制度。"}],"27":[{"x":3.12,"y":15.5,"w":62.19,"h":2.55,"t":"1.民族资产阶级（维新派）VS封建地主阶级"},{"x":8.0,"y":22.25,"w":61.69,"h":2.62,"t":"资产阶级思想与封建主义思想在中国的第一次正面交锋。"},{"x":2.31,"y":39.46,"w":70.56,"h":2.89,"t":"2.民族资产阶级（维新派）VS民族资产阶级（革命派）"},{"x":17.5,"y":46.63,"w":72.62,"h":2.41,"t":"划清了革命与改良的界限，传播了民主革命思想，促进了革命形势"},{"x":2.25,"y":49.59,"w":7.12,"h":2.34,"t":"的发展"},{"x":22.5,"y":49.59,"w":6.88,"h":2.34,"t":"暴露了"},{"x":57.5,"y":49.59,"w":4.69,"h":2.34,"t":"弱点"},{"x":1.94,"y":65.98,"w":19.44,"h":2.2,"t":"3.新文化运动"},{"x":21.28,"y":66.05,"w":2.54,"h":2.0,"t":"为"},{"x":25.31,"y":75.55,"w":9.62,"h":2.13,"t":"前所未有"},{"x":51.38,"y":75.55,"w":9.69,"h":2.13,"t":"空前深刻"},{"x":52.38,"y":78.44,"w":22.19,"h":2.27,"t":"西方民主和科学思想"},{"x":40.62,"y":84.44,"w":30.75,"h":2.2,"t":"准备了思想的和文化的条件"},{"x":27.75,"y":90.63,"w":30.63,"h":2.07,"t":"资产阶级民主主义，并不能"}],"28":[{"x":17.0,"y":6.47,"w":12.56,"h":2.2,"t":"去认识中国，"},{"x":53.31,"y":6.47,"w":4.81,"h":2.2,"t":"造。"},{"x":35.0,"y":9.09,"w":30.94,"h":2.89,"t":"把改造国民性置于优先地位"},{"x":11.94,"y":18.25,"w":33.25,"h":2.75,"t":"还没有马克思主义的批判精神"},{"x":13.12,"y":27.34,"w":2.83,"h":2.75,"t":"·"},{"x":13.53,"y":33.33,"w":2.34,"h":2.69,"t":"》"},{"x":13.53,"y":39.39,"w":2.58,"h":2.48,"t":"·"},{"x":20.81,"y":39.39,"w":48.88,"h":2.48,"t":"批判孔学，动摇了封建正统思想的统治地位"},{"x":13.81,"y":42.36,"w":6.62,"h":2.48,"t":"·并非"},{"x":49.81,"y":42.36,"w":4.31,"h":2.48,"t":"并非"},{"x":13.84,"y":51.72,"w":1.5,"h":2.62,"t":"1"},{"x":14.05,"y":57.71,"w":2.4,"h":2.48,"t":"》"},{"x":10.25,"y":64.12,"w":41.38,"h":2.2,"t":"4.五四运动以后的新文化运动"},{"x":14.26,"y":76.31,"w":2.54,"h":2.0,"t":"·"},{"x":14.26,"y":79.06,"w":2.57,"h":2.13,"t":"·"},{"x":14.46,"y":81.82,"w":2.32,"h":2.27,"t":"》"},{"x":14.36,"y":84.78,"w":2.58,"h":2.2,"t":"·"}],"29":[{"x":2.56,"y":6.9,"w":16.31,"h":2.0,"t":"5.延安整风"},{"x":15.38,"y":13.52,"w":16.19,"h":2.07,"t":"最主要的任务："},{"x":5.94,"y":16.55,"w":2.56,"h":2.0,"t":"·"},{"x":69.06,"y":16.55,"w":15.12,"h":2.0,"t":"思想认识根源"},{"x":6.15,"y":19.45,"w":2.64,"h":2.21,"t":"·"},{"x":21.12,"y":19.45,"w":4.81,"h":2.21,"t":"实质"},{"x":6.15,"y":25.45,"w":2.54,"h":2.07,"t":"·"},{"x":21.31,"y":25.45,"w":14.94,"h":2.07,"t":"主要表现形式"},{"x":6.15,"y":28.34,"w":2.49,"h":2.07,"t":"·"},{"x":63.82,"y":31.52,"w":19.37,"h":1.72,"t":"第一个重要的问题"},{"x":18.0,"y":34.28,"w":5.81,"h":2.07,"t":"重点："},{"x":18.25,"y":43.86,"w":22.44,"h":2.14,"t":"马克思主义思想教育"},{"x":58.94,"y":43.86,"w":17.75,"h":2.14,"t":"伟大的思想解放"},{"x":43.62,"y":46.83,"w":46.0,"h":2.07,"t":"实事求是的马克思主义思想路线，在全党"},{"x":5.19,"y":49.66,"w":12.31,"h":2.14,"t":"范围确立了"},{"x":2.44,"y":65.52,"w":38.0,"h":1.93,"t":"6.关于真理标准问题的讨论"},{"x":67.12,"y":68.76,"w":22.56,"h":2.0,"t":"又一场马克思主义思"},{"x":5.19,"y":71.72,"w":12.44,"h":2.0,"t":"想解放运动。"},{"x":7.75,"y":74.76,"w":4.75,"h":2.0,"t":"实质"},{"x":10.31,"y":80.55,"w":53.5,"h":2.0,"t":"成为正本清源、拨乱反正和改革开放的思想先导"},{"x":18.06,"y":86.55,"w":20.25,"h":1.72,"t":"作了思想理论准备。"}],"30":[{"x":92.5,"y":10.9,"w":4.38,"h":2.34,"t":"设立"},{"x":38.0,"y":13.72,"w":38.44,"h":2.34,"t":"议院，实行“君民共主”制度等主张。"},{"x":40.19,"y":16.62,"w":15.94,"h":1.93,"t":"思想启蒙的意义"},{"x":58.88,"y":22.21,"w":38.25,"h":2.41,"t":"资产阶级新文化开始打破封建文化独"},{"x":37.94,"y":24.97,"w":18.06,"h":2.21,"t":"占文化阵地的局面"},{"x":97.36,"y":28.28,"w":2.02,"h":4.62,"t":"门"},{"x":37.62,"y":33.72,"w":45.75,"h":2.28,"t":"提倡民主科学、前所未有空前深刻的思想解放"},{"x":96.47,"y":36.83,"w":2.81,"h":4.28,"t":"动"}],"31":[{"x":13.31,"y":8.97,"w":62.81,"h":3.45,"t":"第02部分选择题核心专题背诵总结"},{"x":48.62,"y":26.41,"w":37.44,"h":2.21,"t":"，考查的本质是“概念的逻辑对应”"},{"x":19.56,"y":38.28,"w":13.5,"h":2.14,"t":"做题四部曲："},{"x":17.0,"y":41.45,"w":12.38,"h":1.72,"t":"定位到设问"},{"x":22.12,"y":47.17,"w":9.88,"h":2.14,"t":"处理材料"},{"x":70.19,"y":76.07,"w":10.25,"h":2.28,"t":"因果联系"},{"x":17.12,"y":82.07,"w":9.81,"h":2.0,"t":"选项圈词"}],"32":[{"x":15.62,"y":21.31,"w":26.38,"h":2.07,"t":"没见过的选项如何处理："},{"x":60.44,"y":26.76,"w":37.31,"h":2.41,"t":"能够判定正确的对应关系（基础"},{"x":10.81,"y":29.66,"w":80.19,"h":2.34,"t":"知识+材料处理），把错误的对应关系排除即可（基础知识+材料处理）"},{"x":70.19,"y":35.52,"w":27.69,"h":2.41,"t":"干扰项不是固定的，不过"},{"x":11.44,"y":38.55,"w":27.06,"h":2.28,"t":"干扰项的设置规则是固定"},{"x":82.88,"y":41.45,"w":15.06,"h":2.28,"t":"你会敢于去选"},{"x":10.75,"y":44.62,"w":17.44,"h":2.0,"t":"你没见过的选项。"},{"x":16.0,"y":47.31,"w":22.69,"h":2.14,"t":"在这里，腿姐提醒你"},{"x":58.19,"y":53.1,"w":39.75,"h":2.28,"t":"。因此，自己背《冲刺背诵手册》的"},{"x":10.75,"y":56.41,"w":35.44,"h":1.72,"t":"时候也一定要背好完整的对应K。"}],"33":[{"x":25.21,"y":9.66,"w":10.05,"h":2.55,"t":"二、13"},{"x":55.36,"y":9.66,"w":5.19,"h":2.55,"t":"队K"},{"x":5.48,"y":17.72,"w":2.55,"h":2.41,"t":"·"},{"x":25.81,"y":17.72,"w":12.75,"h":2.41,"t":"最大的国情"},{"x":5.48,"y":20.69,"w":2.57,"h":2.48,"t":"·"},{"x":41.44,"y":20.69,"w":15.06,"h":2.48,"t":"最本质的特征"},{"x":5.48,"y":23.52,"w":2.57,"h":2.69,"t":"·"},{"x":49.12,"y":23.52,"w":10.06,"h":2.69,"t":"最大优势"},{"x":5.48,"y":26.55,"w":2.58,"h":2.62,"t":"·"},{"x":74.94,"y":26.55,"w":10.12,"h":2.62,"t":"根本保证"},{"x":41.38,"y":29.38,"w":7.31,"h":2.48,"t":"主心骨"},{"x":56.69,"y":29.38,"w":10.12,"h":2.48,"t":"领导核心"},{"x":5.48,"y":32.21,"w":2.32,"h":2.62,"t":"》"},{"x":67.12,"y":32.21,"w":10.06,"h":2.62,"t":"必由之路"},{"x":5.37,"y":35.1,"w":2.57,"h":2.55,"t":"·"},{"x":59.38,"y":35.1,"w":9.94,"h":2.55,"t":"显著标志"},{"x":5.5,"y":38.07,"w":17.25,"h":2.48,"t":"勇于自我革命是"},{"x":30.75,"y":38.07,"w":33.31,"h":2.48,"t":"党最大的优势、最鲜明的品格"},{"x":5.44,"y":40.97,"w":17.25,"h":2.41,"t":"·勇于自我革命"},{"x":46.25,"y":40.97,"w":12.62,"h":2.41,"t":"第二个答案"},{"x":4.96,"y":49.86,"w":2.58,"h":2.55,"t":"·"},{"x":51.44,"y":49.86,"w":30.63,"h":2.55,"t":"出发点和落脚点和根本目的"},{"x":14.94,"y":52.69,"w":20.38,"h":2.41,"t":"最大的政治，决定"},{"x":5.06,"y":55.52,"w":2.39,"h":2.83,"t":"》"},{"x":35.94,"y":55.52,"w":15.81,"h":2.83,"t":"根本政治立场"},{"x":4.75,"y":61.38,"w":2.66,"h":2.76,"t":"·"},{"x":12.38,"y":61.38,"w":20.38,"h":2.76,"t":"以人民为中心，是"},{"x":66.25,"y":61.38,"w":10.69,"h":2.76,"t":"一条红线，"},{"x":43.31,"y":64.28,"w":10.12,"h":2.34,"t":"根本立场"},{"x":5.37,"y":67.1,"w":2.73,"h":2.48,"t":"一"},{"x":32.81,"y":69.86,"w":10.06,"h":2.21,"t":"根本标志"},{"x":4.65,"y":72.62,"w":2.6,"h":2.62,"t":"·"},{"x":45.69,"y":72.62,"w":32.88,"h":2.62,"t":"新发展理念的“根”和“魂”"},{"x":3.72,"y":78.97,"w":2.27,"h":2.07,"t":"、"},{"x":28.94,"y":78.97,"w":28.44,"h":2.07,"t":"中华民族的“根”和“魂”"},{"x":4.75,"y":81.59,"w":2.57,"h":2.48,"t":"·"},{"x":38.0,"y":81.59,"w":35.94,"h":2.48,"t":"世界文化激荡中站稳脚跟的根基"},{"x":4.65,"y":84.34,"w":2.53,"h":2.41,"t":"·"},{"x":30.06,"y":84.34,"w":21.94,"h":2.41,"t":"党创新理论的“根”"},{"x":4.34,"y":90.41,"w":2.58,"h":2.28,"t":"·"},{"x":35.25,"y":90.41,"w":23.0,"h":2.28,"t":"集中体现和主要标志"}],"34":[{"x":13.33,"y":6.28,"w":2.58,"h":2.21,"t":"·"},{"x":36.31,"y":6.28,"w":25.62,"h":2.21,"t":"生产发展的决定性因素"},{"x":13.22,"y":12.55,"w":2.57,"h":2.62,"t":"·"},{"x":33.62,"y":12.55,"w":30.88,"h":2.62,"t":"党的生命线和根本工作路线"},{"x":13.33,"y":15.52,"w":2.57,"h":2.55,"t":"·"},{"x":41.44,"y":15.52,"w":4.94,"h":2.55,"t":"青春"},{"x":70.0,"y":15.52,"w":7.44,"h":2.55,"t":"传家宝"},{"x":13.33,"y":18.55,"w":2.57,"h":2.41,"t":"·"},{"x":49.31,"y":18.55,"w":15.19,"h":2.41,"t":"根本工作方法"},{"x":13.33,"y":24.76,"w":2.56,"h":2.41,"t":"·"},{"x":46.81,"y":24.76,"w":4.81,"h":2.41,"t":"核心"},{"x":13.43,"y":27.79,"w":2.57,"h":2.28,"t":"·"},{"x":52.0,"y":27.79,"w":4.94,"h":2.28,"t":"精髓"},{"x":13.53,"y":30.69,"w":2.57,"h":2.34,"t":"·"},{"x":44.25,"y":30.69,"w":15.12,"h":2.34,"t":"精髓、基本点"},{"x":13.64,"y":36.97,"w":2.56,"h":2.34,"t":"·"},{"x":13.84,"y":39.66,"w":2.57,"h":2.41,"t":"·"},{"x":13.64,"y":42.76,"w":2.56,"h":2.28,"t":"·"},{"x":13.74,"y":45.52,"w":2.58,"h":2.41,"t":"·"},{"x":13.74,"y":48.41,"w":2.53,"h":2.48,"t":"·"},{"x":36.62,"y":48.41,"w":9.88,"h":2.48,"t":"根本任务"},{"x":75.06,"y":48.41,"w":10.0,"h":2.48,"t":"根本尺度。"},{"x":13.64,"y":54.62,"w":2.59,"h":2.48,"t":"·"},{"x":13.84,"y":57.72,"w":2.53,"h":2.28,"t":"·"},{"x":39.25,"y":57.72,"w":5.0,"h":2.28,"t":"强盛"},{"x":13.84,"y":60.55,"w":2.53,"h":2.34,"t":"·"},{"x":41.94,"y":60.55,"w":4.75,"h":2.34,"t":"源头"},{"x":13.74,"y":63.24,"w":2.67,"h":2.69,"t":"·"},{"x":87.62,"y":63.24,"w":10.5,"h":2.69,"t":"战略性支"},{"x":16.0,"y":66.55,"w":2.31,"h":2.34,"t":"撑"},{"x":54.87,"y":66.55,"w":12.62,"h":2.34,"t":"战略性支撑。"},{"x":13.74,"y":76.14,"w":2.66,"h":2.48,"t":"·"},{"x":63.69,"y":76.14,"w":10.5,"h":2.48,"t":"鲜明主题"},{"x":34.31,"y":79.1,"w":9.94,"h":2.41,"t":"首要任务"},{"x":70.5,"y":79.1,"w":10.0,"h":2.41,"t":"本质要求"},{"x":13.95,"y":82.07,"w":2.58,"h":2.41,"t":"·"},{"x":36.94,"y":82.07,"w":5.88,"h":2.41,"t":"主线："},{"x":13.95,"y":84.9,"w":2.59,"h":2.48,"t":"·"},{"x":36.94,"y":84.9,"w":11.06,"h":2.48,"t":"关键环节："},{"x":13.95,"y":87.93,"w":2.58,"h":2.28,"t":"·"},{"x":36.88,"y":87.93,"w":11.12,"h":2.28,"t":"战略基点："},{"x":14.05,"y":90.69,"w":2.57,"h":2.41,"t":"·"},{"x":42.06,"y":90.69,"w":20.69,"h":2.41,"t":"制度基础（保障）："}],"35":[{"x":5.11,"y":12.81,"w":2.64,"h":2.13,"t":"·"},{"x":20.31,"y":12.81,"w":36.62,"h":2.13,"t":"一国经济的立身之本、财富之源"},{"x":5.21,"y":18.6,"w":2.54,"h":2.13,"t":"·"},{"x":30.63,"y":18.6,"w":7.25,"h":2.13,"t":"着力点"},{"x":5.32,"y":21.49,"w":2.55,"h":2.07,"t":"·"},{"x":20.31,"y":21.49,"w":22.69,"h":2.07,"t":"财富创造的根本源泉"},{"x":48.56,"y":21.49,"w":22.69,"h":2.07,"t":"国家强盛的重要支柱"},{"x":5.11,"y":24.31,"w":2.56,"h":2.0,"t":"·"},{"x":25.37,"y":24.31,"w":25.37,"h":2.0,"t":"守牢实体经济这个根基"},{"x":5.11,"y":27.07,"w":2.55,"h":2.07,"t":"·"},{"x":28.0,"y":27.07,"w":17.62,"h":2.07,"t":"实体经济为支撑"},{"x":5.01,"y":33.13,"w":2.63,"h":2.2,"t":"·"},{"x":12.69,"y":33.13,"w":7.25,"h":2.2,"t":"已成为"},{"x":27.94,"y":33.13,"w":12.88,"h":2.2,"t":"新生产要素"},{"x":5.11,"y":38.98,"w":2.63,"h":2.07,"t":"·"},{"x":41.31,"y":38.98,"w":20.88,"h":2.07,"t":"重塑全球经济格局"},{"x":75.81,"y":38.98,"w":12.88,"h":2.07,"t":"全球经济增"},{"x":28.12,"y":47.87,"w":6.25,"h":2.2,"t":"三、"},{"x":50.8,"y":47.87,"w":5.1,"h":2.2,"t":"述K"}],"36":[{"x":45.88,"y":32.58,"w":7.25,"h":2.13,"t":"发源的"},{"x":58.44,"y":38.36,"w":7.44,"h":2.2,"t":"依赖于"},{"x":45.75,"y":41.32,"w":7.31,"h":2.13,"t":"取决于"},{"x":38.0,"y":44.21,"w":20.19,"h":2.2,"t":"个别一一般一个别"},{"x":53.25,"y":46.97,"w":5.0,"h":2.62,"t":"遵循"},{"x":30.38,"y":50.0,"w":9.81,"h":2.07,"t":"根本动力"},{"x":17.44,"y":52.82,"w":15.12,"h":2.34,"t":"任何历史人物"},{"x":17.44,"y":55.72,"w":9.81,"h":2.41,"t":"历史人物"},{"x":17.5,"y":58.75,"w":9.94,"h":2.0,"t":"历史人物"},{"x":17.44,"y":61.57,"w":10.0,"h":2.34,"t":"科技革命"},{"x":17.38,"y":64.6,"w":10.0,"h":2.13,"t":"科学技术"},{"x":17.44,"y":67.42,"w":9.88,"h":2.2,"t":"科学技术"},{"x":17.44,"y":70.25,"w":9.88,"h":2.2,"t":"科学技术"},{"x":17.31,"y":73.0,"w":9.94,"h":2.48,"t":"科学技术"},{"x":27.62,"y":75.83,"w":9.88,"h":2.41,"t":"科学技术"},{"x":17.31,"y":78.79,"w":9.88,"h":2.55,"t":"社会关系"},{"x":17.31,"y":81.75,"w":9.81,"h":2.41,"t":"生产关系"},{"x":30.19,"y":84.5,"w":9.81,"h":2.55,"t":"基本矛盾"},{"x":17.25,"y":87.26,"w":12.47,"h":2.41,"t":"劳动二重性"}],"37":[{"x":50.0,"y":15.7,"w":4.94,"h":2.07,"t":"前提。"},{"x":21.75,"y":18.53,"w":12.56,"h":2.13,"t":"最大的特点"},{"x":34.69,"y":24.24,"w":15.12,"h":2.27,"t":"资本有机构成"},{"x":9.0,"y":27.07,"w":9.94,"h":2.41,"t":"资本积累"},{"x":9.0,"y":32.92,"w":17.69,"h":2.34,"t":"资本主义再生产"},{"x":9.0,"y":35.67,"w":10.06,"h":2.48,"t":"）经济危机"},{"x":9.0,"y":41.32,"w":17.75,"h":2.69,"t":"经济危机的实质"},{"x":23.62,"y":50.07,"w":9.62,"h":2.55,"t":"核心问题"}],"38":[{"x":49.94,"y":18.6,"w":4.38,"h":2.48,"t":"自发"},{"x":72.69,"y":18.6,"w":1.81,"h":2.48,"t":"×"},{"x":41.81,"y":31.47,"w":4.81,"h":2.34,"t":"能动"},{"x":65.06,"y":31.47,"w":1.69,"h":2.34,"t":"×"},{"x":62.44,"y":41.6,"w":14.56,"h":2.2,"t":"根本前提。×"},{"x":67.5,"y":48.69,"w":9.5,"h":2.07,"t":"基础。×"},{"x":36.69,"y":55.79,"w":4.81,"h":2.34,"t":"主观"},{"x":49.44,"y":55.79,"w":1.75,"h":2.34,"t":"×"},{"x":49.5,"y":62.95,"w":12.0,"h":2.13,"t":"有限的。×"},{"x":34.06,"y":70.04,"w":29.88,"h":2.13,"t":"人们认识的变化而改变。×"},{"x":72.31,"y":77.07,"w":9.5,"h":2.13,"t":"取代。×"},{"x":41.38,"y":86.91,"w":4.81,"h":2.0,"t":"线性"},{"x":61.94,"y":86.91,"w":1.88,"h":2.0,"t":"×"}],"39":[{"x":9.31,"y":6.89,"w":7.44,"h":2.2,"t":"不可能"},{"x":63.19,"y":6.89,"w":1.94,"h":2.2,"t":"×"},{"x":45.31,"y":14.19,"w":7.44,"h":2.07,"t":"根本性"},{"x":60.69,"y":14.19,"w":2.0,"h":2.07,"t":"×"},{"x":14.62,"y":21.49,"w":4.81,"h":2.13,"t":"总是"},{"x":53.06,"y":21.49,"w":1.94,"h":2.13,"t":"×"},{"x":45.5,"y":31.61,"w":7.38,"h":2.13,"t":"最基本"},{"x":68.56,"y":31.61,"w":1.94,"h":2.13,"t":"×"},{"x":27.56,"y":38.91,"w":7.44,"h":2.13,"t":"有赖于"},{"x":55.81,"y":38.91,"w":1.94,"h":2.13,"t":"×"},{"x":71.44,"y":46.01,"w":12.06,"h":2.41,"t":"更重要。×"},{"x":37.94,"y":53.24,"w":4.94,"h":2.34,"t":"绝对"},{"x":53.44,"y":53.24,"w":1.88,"h":2.34,"t":"×"},{"x":43.69,"y":63.5,"w":4.44,"h":2.27,"t":"自发"},{"x":56.06,"y":63.5,"w":2.0,"h":2.27,"t":"×"},{"x":40.94,"y":73.35,"w":4.81,"h":2.34,"t":"改变"},{"x":71.69,"y":73.35,"w":2.0,"h":2.34,"t":"×"},{"x":48.88,"y":83.4,"w":17.62,"h":2.41,"t":"更优越、更强大"},{"x":82.12,"y":83.4,"w":1.94,"h":2.41,"t":"×"}],"40":[{"x":70.69,"y":6.54,"w":4.75,"h":2.2,"t":"独自"},{"x":37.44,"y":19.9,"w":4.75,"h":2.2,"t":"完整"},{"x":57.94,"y":19.9,"w":1.94,"h":2.2,"t":"×"},{"x":60.62,"y":27.2,"w":14.62,"h":2.13,"t":"正相关性。×"},{"x":26.94,"y":40.29,"w":17.31,"h":1.93,"t":"事先规定的。×"},{"x":47.44,"y":50.48,"w":10.0,"h":1.79,"t":"各部门内"},{"x":34.56,"y":53.51,"w":1.88,"h":1.79,"t":"×"},{"x":16.44,"y":69.21,"w":4.81,"h":2.13,"t":"总是"},{"x":39.5,"y":69.21,"w":1.94,"h":2.13,"t":"×"},{"x":88.94,"y":82.09,"w":7.75,"h":2.13,"t":"根本途"}],"41":[{"x":62.81,"y":10.4,"w":20.62,"h":2.82,"t":"越来越大的趋势。×"},{"x":34.94,"y":20.66,"w":7.19,"h":2.55,"t":"导致了"},{"x":63.0,"y":20.66,"w":1.88,"h":2.55,"t":"×"},{"x":84.5,"y":30.44,"w":5.0,"h":2.89,"t":"决定"},{"x":10.12,"y":43.53,"w":27.0,"h":2.75,"t":"自由理性平等博爱普世×"},{"x":9.94,"y":50.83,"w":27.31,"h":2.69,"t":"改造、创造、消灭规律×"},{"x":10.06,"y":58.06,"w":29.94,"h":2.41,"t":"）调和矛盾、矛盾绝对同一×"},{"x":10.25,"y":64.94,"w":32.44,"h":2.55,"t":"）客观的存在取决于主观意志×"},{"x":10.56,"y":74.59,"w":52.88,"h":2.96,"t":"马克思主义提供了革命的现成的、具体的途径×"},{"x":10.88,"y":87.6,"w":19.69,"h":2.75,"t":"直观、机械反映>"}],"42":[{"x":17.12,"y":8.06,"w":17.19,"h":2.0,"t":"人人创造历史×"},{"x":17.06,"y":18.25,"w":24.94,"h":1.93,"t":"）感性认识是不可靠的×"},{"x":59.25,"y":28.65,"w":15.88,"h":2.48,"t":"都面对共同的"},{"x":18.5,"y":42.56,"w":7.31,"h":2.34,"t":"已完全"},{"x":66.94,"y":42.56,"w":1.81,"h":2.34,"t":"×"},{"x":46.5,"y":49.72,"w":9.44,"h":2.27,"t":"核心。×"},{"x":75.06,"y":60.26,"w":10.06,"h":2.82,"t":"同步实现"},{"x":46.44,"y":63.22,"w":1.69,"h":2.27,"t":"×"},{"x":38.56,"y":73.28,"w":14.69,"h":2.27,"t":"根本宗旨。×"},{"x":48.94,"y":80.44,"w":9.69,"h":2.55,"t":"主导作用"},{"x":71.75,"y":80.44,"w":1.88,"h":2.55,"t":"×"},{"x":56.44,"y":90.29,"w":4.62,"h":2.69,"t":"主导"},{"x":68.94,"y":90.29,"w":2.0,"h":2.69,"t":"×"}],"43":[{"x":57.12,"y":13.72,"w":9.94,"h":2.55,"t":"根本制约"},{"x":75.06,"y":13.72,"w":1.88,"h":2.55,"t":"×"},{"x":16.31,"y":23.86,"w":12.31,"h":2.34,"t":"先进生产力"},{"x":44.44,"y":23.86,"w":1.81,"h":2.34,"t":"×"},{"x":49.81,"y":30.97,"w":4.62,"h":2.41,"t":"一定"},{"x":62.44,"y":30.97,"w":1.88,"h":2.41,"t":"×"},{"x":55.0,"y":40.69,"w":14.62,"h":2.69,"t":"一脉相承。×"},{"x":8.94,"y":50.9,"w":4.75,"h":2.41,"t":"）所有"},{"x":60.19,"y":50.9,"w":1.88,"h":2.41,"t":"×"},{"x":39.94,"y":60.9,"w":9.81,"h":2.69,"t":"开始落后"},{"x":75.75,"y":60.9,"w":1.88,"h":2.69,"t":"×"},{"x":43.25,"y":67.93,"w":27.31,"h":2.83,"t":"占据国家经济的一半。×"},{"x":9.44,"y":77.72,"w":7.25,"h":2.62,"t":"孙中山"},{"x":70.94,"y":77.72,"w":1.94,"h":2.62,"t":"×"},{"x":22.56,"y":87.79,"w":12.38,"h":2.55,"t":"彻底否定了"},{"x":55.94,"y":87.79,"w":1.81,"h":2.55,"t":"×"}],"44":[{"x":59.06,"y":7.79,"w":17.69,"h":2.48,"t":"农民运动基础上"},{"x":89.88,"y":7.79,"w":1.88,"h":2.48,"t":"×"},{"x":74.44,"y":17.93,"w":7.44,"h":2.48,"t":"合作的"},{"x":87.25,"y":17.93,"w":1.94,"h":2.48,"t":"×"},{"x":64.12,"y":27.86,"w":9.5,"h":2.28,"t":"起点。×"},{"x":35.88,"y":34.97,"w":7.38,"h":2.48,"t":"标志着"},{"x":79.38,"y":34.97,"w":1.94,"h":2.48,"t":"×"},{"x":51.69,"y":44.83,"w":7.62,"h":2.69,"t":"，标志着"},{"x":52.19,"y":57.79,"w":7.5,"h":2.62,"t":"，标志着"},{"x":29.19,"y":60.55,"w":1.69,"h":2.14,"t":"×"},{"x":36.62,"y":70.41,"w":7.44,"h":2.62,"t":"标志着"},{"x":80.25,"y":70.41,"w":1.88,"h":2.62,"t":"×"},{"x":37.88,"y":77.45,"w":6.81,"h":2.69,"t":"开启了"},{"x":78.88,"y":77.45,"w":11.5,"h":2.69,"t":"新时期。×"},{"x":50.5,"y":90.41,"w":9.56,"h":2.41,"t":"原因。×"}],"45":[{"x":20.69,"y":10.71,"w":12.5,"h":2.27,"t":"无条件服从"},{"x":46.25,"y":10.71,"w":1.75,"h":2.27,"t":"×"},{"x":33.62,"y":18.06,"w":9.44,"h":2.47,"t":"总和。×"},{"x":67.12,"y":20.81,"w":21.94,"h":2.47,"t":"体现着个人根本的、"},{"x":8.25,"y":24.04,"w":50.56,"h":2.34,"t":"长远的利益，是所有社会成员共同利益的统一"},{"x":46.56,"y":28.3,"w":14.56,"h":2.47,"t":"始终一致。×"},{"x":36.62,"y":38.6,"w":4.69,"h":2.68,"t":"一切"},{"x":61.94,"y":38.6,"w":1.94,"h":2.68,"t":"×"},{"x":29.44,"y":49.04,"w":4.5,"h":2.47,"t":"自主"},{"x":49.5,"y":49.04,"w":1.88,"h":2.47,"t":"×"},{"x":14.06,"y":59.41,"w":4.75,"h":2.54,"t":"决定"},{"x":39.5,"y":59.41,"w":1.88,"h":2.54,"t":"×"},{"x":44.94,"y":66.28,"w":4.75,"h":2.82,"t":"国际"},{"x":77.94,"y":66.28,"w":1.88,"h":2.82,"t":"×"},{"x":37.31,"y":73.9,"w":12.12,"h":2.68,"t":"唯一性。×"},{"x":38.88,"y":84.07,"w":12.06,"h":2.61,"t":"顺序性。×"}],"46":[{"x":35.38,"y":14.35,"w":9.75,"h":2.47,"t":"根本任务"},{"x":35.44,"y":17.17,"w":22.56,"h":2.34,"t":"本质要求和根本目的："},{"x":35.38,"y":19.99,"w":9.88,"h":2.27,"t":"必由之路"},{"x":35.38,"y":22.8,"w":12.25,"h":2.27,"t":"最本质特征"},{"x":40.5,"y":25.62,"w":9.88,"h":2.34,"t":"最大优势"},{"x":35.44,"y":28.43,"w":9.75,"h":2.27,"t":"本质属性："},{"x":25.5,"y":31.25,"w":9.62,"h":2.27,"t":"首要问题："},{"x":25.19,"y":33.93,"w":9.88,"h":2.27,"t":"基本问题："},{"x":25.25,"y":36.74,"w":9.88,"h":2.34,"t":"中心问题："},{"x":25.12,"y":39.56,"w":9.94,"h":2.2,"t":"根本问题"},{"x":25.25,"y":42.38,"w":9.81,"h":2.2,"t":"中心问题："},{"x":40.56,"y":45.19,"w":9.75,"h":2.4,"t":"心问题："},{"x":30.08,"y":59.13,"w":7.38,"h":2.82,"t":"关键："},{"x":35.88,"y":62.09,"w":4.75,"h":2.75,"t":"关键"},{"x":64.88,"y":62.09,"w":12.62,"h":2.75,"t":"克服和改造"},{"x":70.5,"y":67.72,"w":4.75,"h":2.82,"t":"关键"},{"x":93.88,"y":73.15,"w":2.31,"h":2.75,"t":"关"},{"x":12.75,"y":75.96,"w":2.31,"h":2.27,"t":"键"},{"x":63.75,"y":78.57,"w":4.88,"h":2.82,"t":"关键"},{"x":48.75,"y":81.52,"w":4.5,"h":2.4,"t":"关键。"},{"x":33.19,"y":84.27,"w":4.75,"h":2.54,"t":"关键"},{"x":33.25,"y":87.09,"w":4.62,"h":2.75,"t":"关键"},{"x":38.25,"y":89.77,"w":4.69,"h":2.54,"t":"关键"}],"47":[{"x":22.0,"y":5.93,"w":9.94,"h":2.34,"t":"核心标志"},{"x":63.19,"y":5.93,"w":9.94,"h":2.34,"t":"显著特点"},{"x":83.94,"y":5.93,"w":4.94,"h":2.34,"t":"关键"},{"x":16.94,"y":9.03,"w":4.81,"h":2.07,"t":"本质"},{"x":37.44,"y":11.86,"w":4.88,"h":2.14,"t":"关键"},{"x":47.0,"y":14.55,"w":7.39,"h":2.62,"t":"关键："},{"x":24.69,"y":17.79,"w":4.88,"h":2.14,"t":"关键"},{"x":60.5,"y":20.55,"w":4.88,"h":2.34,"t":"关键。"},{"x":19.81,"y":23.31,"w":4.88,"h":2.48,"t":"关键"},{"x":78.44,"y":29.17,"w":5.0,"h":2.41,"t":"关键。"},{"x":45.5,"y":32.14,"w":4.81,"h":2.34,"t":"关键"},{"x":27.62,"y":38.21,"w":4.81,"h":2.21,"t":"关键"},{"x":76.94,"y":40.83,"w":4.69,"h":2.28,"t":"关键因"},{"x":30.38,"y":43.79,"w":4.69,"h":2.0,"t":"关键"},{"x":56.5,"y":46.55,"w":10.56,"h":2.48,"t":"关键因素"},{"x":25.37,"y":52.55,"w":4.75,"h":2.41,"t":"关键："},{"x":76.44,"y":55.24,"w":4.81,"h":2.62,"t":"关键"},{"x":45.88,"y":58.28,"w":4.75,"h":2.48,"t":"关键"},{"x":38.38,"y":61.38,"w":4.62,"h":2.14,"t":"关键"},{"x":33.19,"y":64.14,"w":9.81,"h":2.21,"t":"关键环节。"},{"x":23.5,"y":70.14,"w":4.88,"h":2.41,"t":"标志"},{"x":27.0,"y":73.1,"w":9.94,"h":2.34,"t":"根本标志"},{"x":11.75,"y":78.69,"w":4.88,"h":2.41,"t":"标志"},{"x":38.0,"y":81.31,"w":4.69,"h":2.69,"t":"标志"},{"x":66.62,"y":84.07,"w":5.0,"h":2.9,"t":"标志"},{"x":19.38,"y":89.93,"w":4.81,"h":2.76,"t":"标志"}],"48":[{"x":13.31,"y":6.07,"w":4.88,"h":2.07,"t":"标志"},{"x":84.06,"y":11.66,"w":4.94,"h":2.34,"t":"标志"},{"x":79.88,"y":17.24,"w":4.88,"h":2.41,"t":"标志。"},{"x":35.12,"y":26.0,"w":4.81,"h":2.14,"t":"标志"},{"x":37.62,"y":28.69,"w":4.81,"h":2.0,"t":"标志）"},{"x":66.0,"y":31.52,"w":4.88,"h":2.07,"t":"标志"},{"x":65.81,"y":37.17,"w":4.88,"h":2.14,"t":"标志"},{"x":87.94,"y":42.76,"w":4.75,"h":2.41,"t":"标志："},{"x":13.25,"y":45.66,"w":2.56,"h":2.21,"t":"·"},{"x":13.25,"y":51.1,"w":2.65,"h":2.34,"t":"·"},{"x":14.44,"y":62.48,"w":4.81,"h":2.21,"t":"标志"},{"x":47.69,"y":67.93,"w":4.75,"h":2.28,"t":"标志。"},{"x":89.0,"y":70.69,"w":4.94,"h":2.48,"t":"标志"},{"x":62.94,"y":76.28,"w":4.88,"h":2.55,"t":"标志"},{"x":84.58,"y":81.72,"w":7.26,"h":2.69,"t":"标志。"},{"x":37.25,"y":84.55,"w":4.75,"h":2.34,"t":"标志"},{"x":43.81,"y":90.14,"w":5.12,"h":2.41,"t":"标志"}],"49":[{"x":31.31,"y":9.09,"w":4.88,"h":2.13,"t":"，标志"},{"x":21.94,"y":14.74,"w":4.88,"h":2.0,"t":"标志"},{"x":24.5,"y":17.56,"w":4.88,"h":1.93,"t":"标志"},{"x":44.94,"y":23.14,"w":4.94,"h":2.0,"t":"标志"},{"x":71.06,"y":28.72,"w":4.94,"h":2.2,"t":"标志"},{"x":68.56,"y":34.23,"w":4.94,"h":2.2,"t":"，标志"},{"x":81.56,"y":39.88,"w":4.94,"h":2.27,"t":"标志"},{"x":40.0,"y":45.52,"w":4.94,"h":2.27,"t":"标志"},{"x":6.03,"y":51.1,"w":2.55,"h":2.27,"t":"·"},{"x":47.81,"y":59.5,"w":4.88,"h":2.34,"t":"标志"},{"x":40.19,"y":65.36,"w":4.94,"h":2.07,"t":"标志："},{"x":21.31,"y":76.1,"w":4.94,"h":2.27,"t":"标志"},{"x":7.12,"y":84.37,"w":4.88,"h":2.55,"t":"标志"}],"50":[{"x":13.88,"y":5.79,"w":6.69,"h":2.34,"t":"·标志"},{"x":13.88,"y":11.71,"w":6.75,"h":2.2,"t":"·标志"},{"x":13.94,"y":14.6,"w":6.62,"h":2.34,"t":"·标志"},{"x":88.94,"y":17.77,"w":4.75,"h":1.86,"t":"标志。"},{"x":53.12,"y":20.52,"w":4.69,"h":1.93,"t":"标志。"},{"x":89.19,"y":23.35,"w":4.69,"h":2.13,"t":"标志。"},{"x":48.62,"y":37.95,"w":4.69,"h":2.0,"t":"源泉。"},{"x":33.25,"y":40.77,"w":12.19,"h":2.07,"t":"实体、源泉。"},{"x":56.25,"y":43.53,"w":9.94,"h":2.27,"t":"唯一源泉。"},{"x":38.31,"y":46.49,"w":4.56,"h":2.07,"t":"源泉。"},{"x":51.12,"y":49.31,"w":4.75,"h":2.2,"t":"源泉。"},{"x":25.5,"y":55.51,"w":4.75,"h":2.07,"t":"实质："},{"x":20.31,"y":58.33,"w":4.75,"h":2.27,"t":"本质"},{"x":20.44,"y":61.16,"w":4.69,"h":2.2,"t":"本质"},{"x":20.31,"y":64.12,"w":4.81,"h":2.13,"t":"本质"},{"x":20.31,"y":66.87,"w":4.69,"h":2.27,"t":"本质："},{"x":19.31,"y":69.77,"w":7.59,"h":2.55,"t":"本质："},{"x":23.79,"y":75.41,"w":7.25,"h":2.55,"t":"本质："},{"x":25.31,"y":78.17,"w":4.75,"h":2.62,"t":"本质"},{"x":58.56,"y":87.05,"w":4.81,"h":2.41,"t":"规律。"},{"x":66.19,"y":89.94,"w":4.81,"h":2.48,"t":"规律。"}],"51":[{"x":64.06,"y":6.61,"w":4.81,"h":2.13,"t":"规律"},{"x":46.25,"y":15.15,"w":4.62,"h":1.86,"t":"规律。"},{"x":34.25,"y":25.9,"w":36.75,"h":2.41,"t":"第一次大规模的反侵略武装斗争"},{"x":10.81,"y":31.34,"w":4.62,"h":2.69,"t":"粉碎"},{"x":23.81,"y":34.23,"w":17.5,"h":2.69,"t":"影响最大的起义"},{"x":41.75,"y":40.08,"w":20.19,"h":2.27,"t":"资产阶级民主革命"},{"x":21.31,"y":42.84,"w":7.31,"h":2.27,"t":"新阶段"},{"x":33.12,"y":45.39,"w":12.44,"h":2.55,"t":"反帝反封建"},{"x":25.0,"y":53.79,"w":7.92,"h":2.62,"t":"的枢纽"},{"x":67.38,"y":53.79,"w":21.38,"h":2.62,"t":"国内和平基本实现："},{"x":14.06,"y":59.57,"w":4.62,"h":2.55,"t":"开始"},{"x":24.25,"y":59.57,"w":12.31,"h":2.55,"t":"全民族抗战"},{"x":26.81,"y":62.12,"w":9.88,"h":2.62,"t":"正面战场"},{"x":46.0,"y":64.81,"w":17.88,"h":2.62,"t":"第一次重大胜利"},{"x":33.31,"y":70.25,"w":20.31,"h":2.69,"t":"上规模最大、最激烈"},{"x":10.62,"y":75.83,"w":9.62,"h":2.75,"t":"）百团大战"},{"x":25.94,"y":84.78,"w":4.81,"h":2.75,"t":"抗击"},{"x":43.88,"y":84.78,"w":17.56,"h":2.75,"t":"第一次完全胜利："},{"x":23.12,"y":87.4,"w":37.25,"h":2.89,"t":"站起来后屹立于世界东方的宣言书"},{"x":35.62,"y":90.22,"w":34.56,"h":2.69,"t":"新中国的国威和人民军队的军威"}],"52":[{"x":10.56,"y":14.81,"w":32.06,"h":2.55,"t":"1.关于“寓于”的总结"},{"x":10.19,"y":32.37,"w":28.69,"h":2.41,"t":"2.关于计算公式总结"}],"53":[{"x":2.5,"y":9.03,"w":84.75,"h":3.31,"t":"第03/部分分析题核心背诵总结（含定位关键词）"},{"x":24.54,"y":17.93,"w":3.41,"h":2.34,"t":"马"},{"x":2.69,"y":23.24,"w":32.31,"h":2.41,"t":"（一）辩证法原理词模板"},{"x":23.19,"y":55.66,"w":66.06,"h":2.69,"t":"联系是事物固有的、不以人的意志为转移的，具有客观性、"},{"x":8.19,"y":58.48,"w":81.12,"h":2.69,"t":"普遍性、多样性与条件性。世界上一切事物都处于普遍联系之中，整个世"},{"x":8.31,"y":61.24,"w":60.56,"h":2.83,"t":"界是一个普遍联系的整体，普遍联系是通过中介实现的"},{"x":11.12,"y":77.38,"w":4.81,"h":2.76,"t":"实质"},{"x":77.19,"y":77.38,"w":7.5,"h":2.76,"t":"暂时性"},{"x":41.88,"y":80.14,"w":4.56,"h":2.76,"t":"过程"}],"54":[{"x":69.75,"y":18.14,"w":17.44,"h":1.86,"t":"相对的、有条件"},{"x":92.75,"y":18.14,"w":4.69,"h":1.86,"t":"矛盾"},{"x":16.25,"y":20.9,"w":29.94,"h":2.0,"t":"的斗争性是绝对的、无条件"},{"x":16.5,"y":26.41,"w":40.06,"h":2.07,"t":"矛盾的同一性是以差别和对立为前提"},{"x":49.75,"y":29.1,"w":19.5,"h":1.93,"t":"斗争性寓于同一性"},{"x":29.12,"y":37.31,"w":60.62,"h":2.28,"t":"从对立中把握统一，统一中把握对立，促进事物的转化"},{"x":16.12,"y":40.07,"w":25.06,"h":2.28,"t":"还要大力发扬斗争精神"},{"x":21.0,"y":59.03,"w":65.88,"h":2.48,"t":"矛盾存在于一切事物发展过程的始终，无时不在，无处不有"},{"x":21.25,"y":61.72,"w":22.12,"h":2.62,"t":"承认矛盾、正视矛盾"},{"x":78.19,"y":61.72,"w":18.94,"h":2.62,"t":"全面看待、分析、"},{"x":32.94,"y":82.97,"w":26.75,"h":2.69,"t":"要坚持具体问题具体分析"}],"55":[{"x":25.06,"y":9.09,"w":17.69,"h":2.0,"t":"矛盾问题的精髓"},{"x":53.25,"y":9.09,"w":7.44,"h":2.0,"t":"普遍性"},{"x":73.81,"y":9.09,"w":15.25,"h":2.0,"t":"无条件的、绝"},{"x":7.06,"y":11.91,"w":2.38,"h":1.93,"t":"对"},{"x":22.44,"y":11.91,"w":7.44,"h":1.93,"t":"特殊性"},{"x":50.75,"y":11.91,"w":20.12,"h":1.93,"t":"有条件的、相对的"},{"x":22.5,"y":14.67,"w":30.5,"h":2.0,"t":"都是共性和个性的有机统一"},{"x":60.94,"y":14.67,"w":4.94,"h":2.0,"t":"寓于"},{"x":17.31,"y":20.39,"w":45.94,"h":2.0,"t":"个别中把握和概括出一般，学会举一反三。"},{"x":81.62,"y":42.49,"w":7.62,"h":2.07,"t":"看问题"},{"x":7.19,"y":45.39,"w":81.94,"h":2.07,"t":"既要全面地看，又要看主流、大势、发展趋势，同时不能忽视次要矛盾、"},{"x":7.19,"y":48.35,"w":17.62,"h":1.93,"t":"次要方面的解决。"},{"x":68.81,"y":55.99,"w":15.25,"h":2.07,"t":"处于支配地位"},{"x":17.5,"y":58.88,"w":12.5,"h":1.93,"t":"起决定作用"},{"x":22.69,"y":77.69,"w":30.94,"h":2.34,"t":"处于支配地位，起主导作用"},{"x":66.5,"y":80.65,"w":22.75,"h":2.13,"t":"事物的性质主要是由"},{"x":7.69,"y":83.47,"w":30.25,"h":2.07,"t":"主要矛盾的主要方面决定的"}],"56":[{"x":30.56,"y":23.42,"w":5.81,"h":1.93,"t":"前提，"},{"x":87.31,"y":29.06,"w":9.94,"h":2.0,"t":"只有充分"},{"x":15.19,"y":32.09,"w":61.31,"h":1.72,"t":"发挥主观能动性，才能正确认识和利用客观规律。实践"},{"x":27.94,"y":34.85,"w":9.94,"h":1.86,"t":"根本途径"},{"x":58.88,"y":37.67,"w":12.38,"h":1.93,"t":"从实际出发"},{"x":87.19,"y":37.67,"w":10.0,"h":1.93,"t":"正确的实"},{"x":15.06,"y":40.56,"w":15.19,"h":1.72,"t":"践观念和方式"},{"x":38.12,"y":40.56,"w":27.94,"h":1.72,"t":"历史主动精神，在实践中"},{"x":53.62,"y":48.21,"w":12.5,"h":2.07,"t":"实践的本质"},{"x":87.12,"y":51.1,"w":4.88,"h":1.93,"t":"前提"},{"x":53.62,"y":53.99,"w":9.94,"h":1.86,"t":"现实基础"},{"x":59.06,"y":56.89,"w":7.0,"h":1.72,"t":"自然界"},{"x":56.31,"y":59.44,"w":22.69,"h":2.0,"t":"永恒的、必要的条件"},{"x":23.06,"y":62.26,"w":9.62,"h":2.07,"t":"自然基础"},{"x":68.88,"y":87.74,"w":22.81,"h":1.86,"t":"前后相继、彼此制约"}],"57":[{"x":75.5,"y":6.41,"w":10.12,"h":1.72,"t":"相互区别"},{"x":15.88,"y":9.1,"w":17.5,"h":1.86,"t":"具体的因果联系"},{"x":59.13,"y":11.86,"w":22.81,"h":2.07,"t":"相互依存和相互转化"},{"x":87.31,"y":11.86,"w":2.31,"h":2.07,"t":"在"},{"x":8.25,"y":14.76,"w":22.81,"h":2.0,"t":"事物因果联系的长链"},{"x":82.0,"y":17.59,"w":7.56,"h":2.07,"t":"原因与"},{"x":8.19,"y":20.34,"w":60.94,"h":2.21,"t":"结果辩证关系是复杂多样的，有一因多果、同因异果等"},{"x":79.56,"y":23.17,"w":10.12,"h":2.21,"t":"提高活动"},{"x":8.38,"y":26.14,"w":30.19,"h":2.0,"t":"的自觉性、预测性和调控性。"},{"x":33.88,"y":36.62,"w":4.81,"h":2.34,"t":"必然"},{"x":84.88,"y":36.62,"w":4.94,"h":2.34,"t":"偶然"},{"x":72.06,"y":39.38,"w":10.12,"h":2.41,"t":"相互依存"},{"x":28.81,"y":42.14,"w":52.12,"h":2.48,"t":"必然要通过偶然表现出来，并为自已开辟道路。"},{"x":23.88,"y":50.62,"w":10.0,"h":2.41,"t":"相互转化"},{"x":72.25,"y":50.62,"w":17.75,"h":2.41,"t":"重视事物发展的"},{"x":8.62,"y":53.38,"w":17.5,"h":2.62,"t":"必然性、规律性"},{"x":39.19,"y":53.38,"w":30.25,"h":2.62,"t":"要充分估计到各种偶然因素"},{"x":79.88,"y":53.38,"w":5.0,"h":2.62,"t":"把握"},{"x":23.94,"y":56.76,"w":4.81,"h":2.0,"t":"机遇。"},{"x":29.25,"y":66.69,"w":4.88,"h":2.48,"t":"本质"},{"x":44.56,"y":66.69,"w":9.88,"h":2.48,"t":"根本性质"},{"x":16.69,"y":69.45,"w":31.69,"h":2.69,"t":"只有通过理性思维才能把握。"},{"x":65.75,"y":69.45,"w":23.38,"h":2.69,"t":"外部联系和表面特征，"},{"x":80.38,"y":72.28,"w":10.06,"h":2.76,"t":"本质决定"},{"x":9.06,"y":75.1,"w":4.81,"h":2.69,"t":"现象"},{"x":62.56,"y":75.1,"w":14.94,"h":2.69,"t":"现象表现本质"}],"58":[{"x":10.38,"y":6.34,"w":32.38,"h":2.34,"t":"（二）认识论原理词模板"},{"x":27.75,"y":40.0,"w":4.81,"h":2.55,"t":"。实践"},{"x":64.94,"y":40.0,"w":10.25,"h":2.55,"t":"决定作用"},{"x":60.81,"y":42.83,"w":12.44,"h":2.62,"t":"认识的本质"},{"x":43.31,"y":45.59,"w":53.0,"h":2.76,"t":"目的性、计划性、创造性，对实践具有能动的反"},{"x":15.0,"y":48.48,"w":81.25,"h":2.62,"t":"作用。实践与认识的辩证统一是在实践、认识、再实践、再认识的多次反"},{"x":14.94,"y":51.17,"w":12.31,"h":2.76,"t":"复中实现的"},{"x":47.75,"y":67.59,"w":12.38,"h":2.83,"t":"认识的本质"},{"x":24.44,"y":75.79,"w":30.25,"h":3.03,"t":"实践与认识的辩证运动过程"},{"x":60.12,"y":75.79,"w":20.12,"h":3.03,"t":"认识运动的总规律"},{"x":39.44,"y":81.52,"w":20.12,"h":3.03,"t":"循环往复以至无穷"},{"x":21.62,"y":87.03,"w":27.62,"h":2.97,"t":"波浪式前进和螺旋式上升"},{"x":90.62,"y":87.03,"w":4.75,"h":2.97,"t":"具体"},{"x":13.94,"y":89.79,"w":17.38,"h":2.48,"t":"的、历史的统一"},{"x":44.5,"y":89.79,"w":12.38,"h":2.48,"t":"认识的深化。"}],"59":[{"x":44.06,"y":15.31,"w":10.0,"h":1.72,"t":"感性认识"},{"x":64.5,"y":15.31,"w":12.44,"h":1.72,"t":"实践基础上"},{"x":33.88,"y":20.76,"w":48.31,"h":1.86,"t":"低级阶段，具有不深刻的局限性。理性认识"},{"x":74.88,"y":23.59,"w":15.0,"h":1.93,"t":"关于事物的本"},{"x":8.44,"y":26.48,"w":50.75,"h":1.93,"t":"质、全体、内部联系和事物自身规律性的认识"},{"x":82.5,"y":26.48,"w":7.5,"h":1.93,"t":"高级阶"},{"x":8.26,"y":29.24,"w":81.75,"h":2.14,"t":"段。感性认识是理性认识的基础，感性认识有待于发展和深化为理性认"},{"x":8.38,"y":32.07,"w":2.25,"h":2.07,"t":"识"},{"x":36.44,"y":32.07,"w":22.62,"h":2.07,"t":"相互渗透、相互包含"},{"x":42.38,"y":56.76,"w":12.19,"h":2.21,"t":"非理性因素"},{"x":59.75,"y":59.59,"w":17.5,"h":2.14,"t":"激活和驱动作用"},{"x":44.69,"y":73.52,"w":25.25,"h":2.41,"t":"标志主观与客观相符合"},{"x":65.25,"y":76.41,"w":9.69,"h":2.14,"t":"本质属性"},{"x":60.06,"y":79.1,"w":9.94,"h":2.34,"t":"客观内容"},{"x":85.75,"y":79.1,"w":4.88,"h":2.34,"t":"客观"},{"x":9.06,"y":81.93,"w":14.94,"h":2.28,"t":"事物及其规律"}],"60":[{"x":50.88,"y":17.52,"w":14.94,"h":2.14,"t":"真理的绝对性"},{"x":86.56,"y":17.52,"w":7.5,"h":2.14,"t":"确定性"},{"x":22.75,"y":20.48,"w":25.06,"h":2.0,"t":"无限性。真理的相对性"},{"x":40.69,"y":23.24,"w":55.81,"h":2.14,"t":"总是有限度的、不完善的，认识有待深化和发展。"},{"x":15.0,"y":26.21,"w":40.56,"h":1.93,"t":"任何真理都是绝对性和相对性的统一"},{"x":33.0,"y":28.97,"w":22.5,"h":2.0,"t":"相互依存、相互包含"},{"x":68.62,"y":28.97,"w":4.81,"h":2.0,"t":"寓于"},{"x":20.0,"y":32.0,"w":4.81,"h":1.72,"t":"通过"},{"x":40.62,"y":32.0,"w":9.75,"h":1.72,"t":"表现出来"},{"x":81.44,"y":32.0,"w":4.81,"h":1.72,"t":"包含"},{"x":30.44,"y":34.97,"w":35.31,"h":1.72,"t":"无数相对真理总和构成绝对真理"},{"x":53.5,"y":51.38,"w":32.69,"h":2.0,"t":"在确定的范围内是绝对对立的"},{"x":58.31,"y":73.66,"w":35.44,"h":2.07,"t":"主观与客观相符合、一致。价值"},{"x":38.31,"y":76.41,"w":10.06,"h":2.21,"t":"意义关系"},{"x":77.19,"y":79.17,"w":11.12,"h":2.28,"t":"主观反映，"},{"x":32.44,"y":90.41,"w":4.69,"h":2.28,"t":"根本"},{"x":86.12,"y":90.41,"w":10.0,"h":2.28,"t":"任何成功"}],"61":[{"x":7.94,"y":6.46,"w":81.5,"h":2.06,"t":"的实践必然是真理尺度和价值尺度的辩证统一，是合规律性与合目的性的"},{"x":7.81,"y":9.27,"w":4.88,"h":2.2,"t":"统一"},{"x":82.06,"y":20.6,"w":7.5,"h":2.27,"t":"一切从"},{"x":8.0,"y":23.42,"w":27.69,"h":2.34,"t":"实际出发，尊重客观规律"},{"x":61.5,"y":23.42,"w":20.19,"h":2.34,"t":"实现活动的目的性。"},{"x":36.12,"y":31.25,"w":30.31,"h":2.47,"t":"实践是检验真理的唯一标准"},{"x":20.75,"y":34.13,"w":4.81,"h":2.34,"t":"决定"},{"x":28.5,"y":39.84,"w":61.19,"h":2.47,"t":"实践作为检验认识真理性的标准，是确定性与不确定性"},{"x":8.19,"y":42.72,"w":7.25,"h":2.54,"t":"的统一"},{"x":79.81,"y":67.31,"w":10.25,"h":2.95,"t":"守正是创"},{"x":8.62,"y":70.19,"w":48.12,"h":2.61,"t":"新的前提和基础，创新是守正的目的和路径"},{"x":77.62,"y":75.82,"w":12.69,"h":2.88,"t":"守正创新深"},{"x":8.94,"y":78.64,"w":58.06,"h":2.68,"t":"刻揭示了“变”与“不变”、继承与发展的辩证统一"},{"x":77.88,"y":84.07,"w":12.69,"h":2.95,"t":"既要坚持真"},{"x":9.0,"y":87.23,"w":58.5,"h":2.54,"t":"理不动摇，也要敢于创新，以新的理论指导新的实践。"}],"62":[{"x":10.44,"y":21.5,"w":32.38,"h":1.92,"t":"（三）非常规原理词模版"},{"x":71.44,"y":37.36,"w":25.31,"h":2.34,"t":"科学技术日益成为生产"},{"x":15.38,"y":40.18,"w":21.0,"h":2.34,"t":"发展的决定性因素，"},{"x":51.12,"y":40.18,"w":45.62,"h":2.34,"t":"先进生产力的集中体现和主要标志，是第"},{"x":15.94,"y":43.06,"w":9.0,"h":2.34,"t":"一生产力"},{"x":30.69,"y":43.06,"w":25.0,"h":2.34,"t":"科学技术是一把双刃剑"},{"x":92.12,"y":62.5,"w":4.44,"h":2.68,"t":"自我"},{"x":15.12,"y":65.45,"w":12.25,"h":2.54,"t":"调整和完善"},{"x":68.5,"y":71.02,"w":9.81,"h":2.75,"t":"强大动力"},{"x":14.88,"y":79.46,"w":48.06,"h":2.4,"t":"围绕推进中国式现代化进一步全面深化改革。"},{"x":22.38,"y":90.25,"w":58.19,"h":2.82,"t":"在社会历史发展过程中，人民群众起着决定性的作用"}],"63":[{"x":7.94,"y":12.15,"w":12.62,"h":1.88,"t":"历史的主体"},{"x":25.87,"y":12.15,"w":15.0,"h":1.88,"t":"历史的创造者"},{"x":82.5,"y":17.85,"w":7.44,"h":1.94,"t":"人民群"},{"x":8.08,"y":20.69,"w":81.9,"h":2.01,"t":"众的总体意愿和行动代表了历史发展的方向，人民群众的社会实践最终决"},{"x":8.06,"y":23.47,"w":20.25,"h":2.01,"t":"定历史发展的结局"},{"x":3.19,"y":29.65,"w":51.19,"h":2.22,"t":"（四）政治经济学4大核心原理词模版"},{"x":6.44,"y":33.4,"w":35.81,"h":2.36,"t":"不变资本可变资本的划分与意义"},{"x":6.69,"y":56.39,"w":20.25,"h":2.08,"t":"资本主义经济危机"},{"x":7.06,"y":84.65,"w":16.25,"h":2.29,"t":"剩余价值规律："}],"64":[{"x":12.94,"y":17.57,"w":33.38,"h":2.15,"t":"超额剩余价值与相对剩余价值"},{"x":9.69,"y":40.83,"w":20.25,"h":2.01,"t":"（五）万能答案"},{"x":30.0,"y":47.99,"w":10.0,"h":1.74,"t":"辩证思维"},{"x":22.25,"y":50.69,"w":35.62,"h":1.94,"t":"发现矛盾、分析矛盾、解决矛盾"},{"x":35.06,"y":56.32,"w":61.5,"h":2.08,"t":"透过现象看本质，在把握事物规律性的基础上充分发挥"},{"x":14.62,"y":59.38,"w":17.56,"h":1.74,"t":"人的主观能动性"},{"x":17.12,"y":62.22,"w":10.0,"h":1.74,"t":"注重实践"},{"x":53.25,"y":64.86,"w":43.0,"h":2.08,"t":"改造主观世界与改造客观世界相结合，"},{"x":14.44,"y":67.64,"w":43.25,"h":2.08,"t":"推动认识与实践实现具体的历史的统一。"}],"65":[{"x":35.61,"y":9.76,"w":5.11,"h":2.7,"t":"5大"},{"x":3.25,"y":15.43,"w":35.81,"h":2.42,"t":"（一）历史进程的母版答案"},{"x":10.88,"y":31.56,"w":12.06,"h":2.56,"t":"毛泽东同志"},{"x":65.75,"y":31.56,"w":17.38,"h":2.56,"t":"新民主主义革命"},{"x":73.19,"y":34.46,"w":17.38,"h":2.49,"t":"社会主义革命和"},{"x":8.19,"y":37.37,"w":4.75,"h":2.28,"t":"建设"},{"x":15.94,"y":43.11,"w":7.38,"h":2.21,"t":"邓小平"},{"x":10.81,"y":45.95,"w":35.75,"h":2.28,"t":"改革开放和社会主义现代化建设"},{"x":16.06,"y":54.39,"w":12.44,"h":2.42,"t":"习近平同志"},{"x":72.69,"y":54.39,"w":17.88,"h":2.42,"t":"新时代中国特色"},{"x":8.25,"y":57.3,"w":9.94,"h":2.35,"t":"社会主义"},{"x":21.19,"y":68.86,"w":10.06,"h":2.35,"t":"根本遵循。"},{"x":3.31,"y":71.97,"w":23.44,"h":2.56,"t":"（二） 主题词模版"},{"x":8.44,"y":78.89,"w":20.12,"h":2.84,"t":"中国特色社会主义"},{"x":13.69,"y":84.64,"w":31.62,"h":2.7,"t":"具有显著优势和强大生命力。"},{"x":54.87,"y":84.64,"w":17.56,"h":2.7,"t":"中国共产党领导"},{"x":13.5,"y":87.47,"w":16.25,"h":2.77,"t":"最本质的特征，"},{"x":62.5,"y":87.47,"w":28.25,"h":2.77,"t":"最大优势，从根本上保证"},{"x":64.0,"y":90.17,"w":26.88,"h":2.91,"t":"“集中力量办大事”的独"}],"66":[{"x":14.75,"y":6.3,"w":13.06,"h":2.28,"t":"特制度优势"},{"x":37.5,"y":6.3,"w":25.69,"h":2.28,"t":"全国一盘棋的制度优势"},{"x":72.38,"y":6.3,"w":20.62,"h":2.28,"t":"“一张蓝图绘到底”"},{"x":22.31,"y":12.18,"w":14.62,"h":1.94,"t":"重要政治优势。"},{"x":22.5,"y":25.74,"w":74.38,"h":2.08,"t":"关系党和国家事业兴旺发达、国家长治久安、人民幸福安康的重大"},{"x":14.62,"y":28.44,"w":4.81,"h":2.35,"t":"问题"},{"x":85.06,"y":28.44,"w":10.44,"h":2.35,"t":"制度基石。"},{"x":14.5,"y":34.19,"w":38.38,"h":2.35,"t":"制度稳则国家稳，制度强则国家强"},{"x":63.5,"y":34.19,"w":17.69,"h":2.35,"t":"制度建设为主线"},{"x":17.06,"y":42.77,"w":10.0,"h":2.21,"t":"集中体现"},{"x":71.31,"y":45.47,"w":25.37,"h":2.28,"t":"为推进中国式现代化提"},{"x":14.44,"y":48.17,"w":18.38,"h":2.21,"t":"供坚实制度保障。"},{"x":85.25,"y":56.19,"w":10.0,"h":2.42,"t":"中心任务"},{"x":53.81,"y":61.8,"w":10.25,"h":2.42,"t":"战略部署"},{"x":58.94,"y":75.29,"w":10.19,"h":2.42,"t":"直接关系"},{"x":55.19,"y":78.06,"w":33.25,"h":2.49,"t":"决定中国式现代化的根本性质"}],"67":[{"x":62.12,"y":12.39,"w":8.5,"h":2.15,"t":"主心骨。"},{"x":31.19,"y":15.16,"w":10.0,"h":2.15,"t":"最大优势"},{"x":67.12,"y":15.16,"w":15.25,"h":2.15,"t":"最本质的特征"},{"x":44.0,"y":17.99,"w":46.19,"h":2.08,"t":"根本保证，是党和国家事业发展的根本所"},{"x":8.0,"y":20.76,"w":15.94,"h":2.21,"t":"在、命脉所系。"},{"x":15.75,"y":34.12,"w":74.44,"h":2.42,"t":"勇于自我革命是我们党最鲜明的品格和最大的优势，是中国共产党"},{"x":7.94,"y":36.96,"w":66.5,"h":2.42,"t":"永葆青春活力的奥秘所在，是跳出历史周期率的第二个答案"},{"x":33.75,"y":58.96,"w":9.94,"h":2.56,"t":"本质属性"},{"x":82.75,"y":58.96,"w":7.5,"h":2.56,"t":"根本政"},{"x":8.0,"y":61.8,"w":7.44,"h":2.56,"t":"治立场"},{"x":39.0,"y":67.4,"w":51.25,"h":2.49,"t":"发展为了人民、发展依靠人民、发展成果由人"},{"x":8.19,"y":70.17,"w":69.06,"h":2.49,"t":"民共享，不断促进人的全面发展、推动全体人民实现共同富裕"},{"x":49.5,"y":73.01,"w":40.75,"h":2.42,"t":"更好满足人民日益增长的美好生活需"},{"x":8.12,"y":75.78,"w":2.19,"h":2.56,"t":"要"},{"x":18.44,"y":84.36,"w":15.06,"h":2.49,"t":"历史首创精神"}],"68":[{"x":48.69,"y":9.55,"w":48.06,"h":2.35,"t":"中国式现代化区别于西方现代化的显著标"},{"x":14.37,"y":12.6,"w":82.38,"h":2.21,"t":"志。共同富裕是社会主义的本质要求，是中国式现代化的重要特征，实现"},{"x":14.37,"y":15.57,"w":78.31,"h":2.01,"t":"共同富裕不仅是经济问题，而且是关系党的执政基础的重大政治问题。"},{"x":94.38,"y":20.97,"w":2.25,"h":2.28,"t":"促"},{"x":14.31,"y":23.81,"w":53.81,"h":2.21,"t":"进全体人民共同富裕作为为人民谋幸福的着力点"},{"x":9.31,"y":32.66,"w":79.38,"h":2.49,"t":"（三）习近平新时代中国特色社会主义思想核心概念词模版"},{"x":73.38,"y":51.42,"w":22.75,"h":2.63,"t":"实现高水平的自立自"},{"x":14.12,"y":54.39,"w":2.31,"h":2.49,"t":"强"},{"x":29.56,"y":54.39,"w":29.12,"h":2.49,"t":"新发展格局的最本质特征"},{"x":72.62,"y":54.39,"w":23.81,"h":2.49,"t":"高质量发展的必由之"},{"x":14.0,"y":57.16,"w":2.5,"h":2.49,"t":"路"},{"x":21.81,"y":57.16,"w":74.56,"h":2.49,"t":"科技创新支撑引领高质量发展，是破解当前经济社会发展深层次矛"},{"x":14.12,"y":60.0,"w":22.88,"h":2.49,"t":"盾和问题的必然选择"},{"x":45.12,"y":60.0,"w":51.25,"h":2.49,"t":"加快转变经济发展方式、调整社会结构，提高"},{"x":14.06,"y":62.91,"w":17.69,"h":1.87,"t":"发展质量和效益"},{"x":83.62,"y":70.52,"w":12.62,"h":2.7,"t":"高质量发展"},{"x":47.44,"y":73.49,"w":11.06,"h":2.49,"t":"鲜明主题，"},{"x":16.5,"y":76.19,"w":11.0,"h":2.56,"t":"首要任务，"},{"x":52.5,"y":76.19,"w":11.25,"h":2.56,"t":"本质要求。"},{"x":91.25,"y":78.89,"w":4.94,"h":2.7,"t":"加快"},{"x":13.75,"y":81.8,"w":64.19,"h":2.49,"t":"转变经济发展方式、调整社会结构，提高发展质量和效益"},{"x":39.5,"y":87.4,"w":56.5,"h":2.7,"t":"推动中国式现代化的必然选择，有利于创造更多高"},{"x":13.75,"y":90.17,"w":62.62,"h":2.63,"t":"质量的新供给，满足人民群众日益增长的美好生活需要。"}],"69":[{"x":59.75,"y":9.53,"w":4.69,"h":2.42,"t":"主题"},{"x":23.69,"y":12.36,"w":10.0,"h":2.35,"t":"首要任务"},{"x":41.69,"y":12.36,"w":27.75,"h":2.35,"t":"中国式现代化的本质要求"},{"x":57.06,"y":15.19,"w":17.56,"h":2.35,"t":"坚实的物质基础"},{"x":18.56,"y":18.02,"w":33.0,"h":2.42,"t":"不断满足人民对美好生活需要"},{"x":8.38,"y":21.2,"w":20.25,"h":2.14,"t":"维护国家长治久安"},{"x":58.38,"y":28.59,"w":4.69,"h":2.56,"t":"主题"},{"x":20.94,"y":31.56,"w":9.62,"h":2.21,"t":"首要任务"},{"x":38.44,"y":31.56,"w":52.06,"h":2.21,"t":"中国式现代化的本质要求。国家安全是民族复兴"},{"x":8.62,"y":34.32,"w":8.25,"h":2.42,"t":"的根基。"},{"x":80.62,"y":37.15,"w":9.75,"h":2.35,"t":"发展具有"},{"x":8.62,"y":40.06,"w":81.94,"h":2.42,"t":"基础性、根本性，是解决安全问题的总钥匙，发展就是最大的安全，安全是"},{"x":8.62,"y":42.75,"w":28.19,"h":2.56,"t":"发展的条件、前提和保障。"},{"x":41.12,"y":48.41,"w":32.06,"h":2.42,"t":"是应对世界百年未有之大变局"},{"x":11.25,"y":51.17,"w":14.69,"h":2.49,"t":"历史发展规律"},{"x":46.0,"y":51.17,"w":24.75,"h":2.49,"t":"新时代党治国理政经验"},{"x":11.44,"y":54.35,"w":14.62,"h":2.21,"t":"中国式现代化"},{"x":49.88,"y":61.81,"w":12.56,"h":2.56,"t":"制度型开放"},{"x":86.19,"y":61.81,"w":4.56,"h":2.56,"t":"自主"},{"x":9.0,"y":64.57,"w":17.5,"h":2.56,"t":"开放和单边开放"},{"x":37.0,"y":64.57,"w":15.25,"h":2.56,"t":"数字化绿色化"},{"x":70.38,"y":64.57,"w":9.94,"h":2.56,"t":"满足人民"},{"x":26.94,"y":67.27,"w":10.0,"h":2.62,"t":"合作共赢"},{"x":49.94,"y":67.27,"w":17.69,"h":2.62,"t":"统筹发展和安全"},{"x":78.19,"y":67.27,"w":4.81,"h":2.62,"t":"开放"},{"x":21.81,"y":70.17,"w":10.06,"h":2.49,"t":"鲜明标识"},{"x":60.44,"y":75.83,"w":30.56,"h":2.49,"t":"高水平社会主义市场经济体"},{"x":9.19,"y":78.59,"w":2.19,"h":2.62,"t":"制"},{"x":32.19,"y":78.59,"w":35.62,"h":2.62,"t":"重要保障。完善高水平对外开放"},{"x":88.88,"y":78.59,"w":2.06,"h":2.62,"t":"中"},{"x":9.38,"y":81.35,"w":12.44,"h":2.62,"t":"国式现代化"},{"x":45.19,"y":81.35,"w":12.38,"h":2.62,"t":"高质量发展"},{"x":80.88,"y":81.35,"w":10.19,"h":2.62,"t":"经济全球"},{"x":9.38,"y":84.32,"w":2.31,"h":2.42,"t":"化"},{"x":34.94,"y":84.32,"w":17.69,"h":2.42,"t":"人类命运共同体"}],"70":[{"x":29.62,"y":12.57,"w":21.25,"h":2.07,"t":"全面深化改革开放，"},{"x":16.81,"y":15.26,"w":9.81,"h":2.35,"t":"根本动力"},{"x":67.06,"y":15.26,"w":14.25,"h":2.35,"t":"深刻的革命。"},{"x":56.31,"y":18.16,"w":11.25,"h":2.21,"t":"关键一招"},{"x":62.69,"y":20.99,"w":10.94,"h":2.21,"t":"关键一招，"},{"x":32.12,"y":23.83,"w":10.88,"h":2.21,"t":"必由之路。"},{"x":70.5,"y":32.46,"w":25.44,"h":2.21,"t":"新时代新征程的中心任"},{"x":14.19,"y":35.22,"w":3.31,"h":2.35,"t":"务。"},{"x":14.06,"y":37.98,"w":81.88,"h":2.35,"t":"把中国式现代化蓝图变为现实，根本在于进一步全面深化改革，不断完善"},{"x":14.12,"y":40.88,"w":18.56,"h":2.14,"t":"各方面体制机制，"},{"x":62.69,"y":40.88,"w":33.19,"h":2.14,"t":"制度保障。要锚定继续完善和"},{"x":14.06,"y":43.72,"w":81.56,"h":2.21,"t":"发展中国特色社会主义制度、推进国家治理体系和治理能力现代化的总目"},{"x":14.0,"y":46.55,"w":52.12,"h":2.21,"t":"标，为中国式现代化提供强大动力和制度保障。"},{"x":21.62,"y":57.25,"w":9.94,"h":2.42,"t":"关键在于"},{"x":57.44,"y":57.25,"w":15.12,"h":2.42,"t":"最本质的特征"},{"x":21.56,"y":60.08,"w":74.19,"h":2.35,"t":"加快构建新发展格局是推动高质量发展的战略基点，是推进中国式"},{"x":13.94,"y":62.91,"w":64.94,"h":2.28,"t":"现代化的必由路径，是把握我国发展主动权的战略性布局。"},{"x":8.94,"y":66.02,"w":44.88,"h":2.49,"t":"（四）五位一体总布局核心词模版"},{"x":49.81,"y":73.2,"w":38.12,"h":2.56,"t":"社会主义市场经济的重要组成部分"},{"x":18.81,"y":76.04,"w":27.88,"h":2.49,"t":"经济社会发展的重要基础"}],"71":[{"x":63.38,"y":20.03,"w":27.12,"h":2.56,"t":"我们既发挥了市场经济的"},{"x":8.94,"y":22.87,"w":42.19,"h":2.43,"t":"长处，又发挥了社会主义制度的优越性"},{"x":16.44,"y":25.57,"w":12.06,"h":2.49,"t":"高质量发展"},{"x":59.69,"y":25.57,"w":30.94,"h":2.49,"t":"我国发展的内生动力和创新"},{"x":39.38,"y":31.25,"w":51.31,"h":2.43,"t":"以中国式现代化全面推进强国建设、民族复兴"},{"x":9.0,"y":34.1,"w":4.69,"h":2.49,"t":"伟业"},{"x":61.12,"y":36.87,"w":29.62,"h":2.63,"t":"高水平社会主义市场经济体"},{"x":9.06,"y":39.71,"w":33.12,"h":2.56,"t":"制是中国式现代化的重要保障。"},{"x":76.0,"y":39.71,"w":14.88,"h":2.56,"t":"体现了中国特"},{"x":9.19,"y":42.48,"w":36.81,"h":2.56,"t":"色社会主义制度的优越性和生命力"},{"x":38.81,"y":45.25,"w":42.0,"h":2.63,"t":"适应我国社会主要矛盾转化的必然要求"},{"x":21.81,"y":48.23,"w":26.81,"h":2.43,"t":"更多更公平惠及全体人民"},{"x":49.19,"y":51.0,"w":29.19,"h":2.56,"t":"为高质量发展注人强大动力"},{"x":41.56,"y":53.92,"w":32.06,"h":2.49,"t":"应对重大风险挑战的坚实基础"},{"x":34.25,"y":56.9,"w":7.12,"h":2.36,"t":"关键是"},{"x":86.5,"y":73.32,"w":4.75,"h":2.56,"t":"中华"},{"x":9.69,"y":76.09,"w":81.38,"h":2.63,"t":"优秀传统文化是中华文明的智慧结晶和精华所在，是中华民族的根和魂，"},{"x":9.88,"y":78.79,"w":81.19,"h":2.7,"t":"是我们在世界文化激荡中站稳脚跟的根基，是我们党创新理论的“根”。"},{"x":55.94,"y":81.57,"w":10.06,"h":2.7,"t":"深厚基础"},{"x":24.69,"y":84.48,"w":9.69,"h":2.56,"t":"根本特征"},{"x":10.0,"y":90.16,"w":9.56,"h":2.63,"t":"坚强基石"},{"x":76.94,"y":90.16,"w":9.69,"h":2.63,"t":"现实基础。"}],"72":[{"x":55.31,"y":12.82,"w":40.62,"h":2.22,"t":"中华优秀传统文化是中华文明的智慧"},{"x":14.25,"y":15.66,"w":17.69,"h":2.29,"t":"结晶和精华所在"},{"x":37.44,"y":15.66,"w":20.06,"h":2.29,"t":"中华民族的根和魂"},{"x":62.88,"y":15.66,"w":33.12,"h":2.29,"t":"我们在世界文化激荡中站稳脚"},{"x":14.25,"y":18.64,"w":10.06,"h":2.22,"t":"跟的根基"},{"x":34.75,"y":18.64,"w":21.75,"h":2.22,"t":"党创新理论的“根”"},{"x":34.81,"y":21.48,"w":8.62,"h":2.36,"t":"相结合、"},{"x":68.88,"y":21.48,"w":26.88,"h":2.36,"t":"相结合，坚持守正创新，"},{"x":14.37,"y":24.46,"w":59.62,"h":2.22,"t":"不断推进中华优秀传统文化创造性转化、创新性发展。"},{"x":72.31,"y":32.85,"w":23.69,"h":2.36,"t":"直接影响文明兴衰演"},{"x":14.37,"y":35.69,"w":2.19,"h":2.43,"t":"替"},{"x":37.31,"y":35.69,"w":57.44,"h":2.43,"t":"关系人民福祉、关乎中华民族永续发展的千年大计，"},{"x":19.5,"y":41.51,"w":48.25,"h":2.43,"t":"中国式现代化是人与自然和谐共生的现代化"},{"x":37.25,"y":44.49,"w":12.44,"h":2.36,"t":"高质量发展"},{"x":73.0,"y":44.49,"w":22.88,"h":2.36,"t":"满足人民日益增长的"},{"x":14.31,"y":47.26,"w":15.0,"h":2.7,"t":"美好生活需要"},{"x":93.5,"y":56.06,"w":2.44,"h":2.49,"t":"绿"},{"x":14.19,"y":58.91,"w":22.56,"h":2.56,"t":"水青山就是金山银山"},{"x":67.94,"y":58.91,"w":9.94,"h":2.56,"t":"核心理念"},{"x":29.62,"y":61.82,"w":9.81,"h":2.7,"t":"基本国策"},{"x":47.5,"y":61.82,"w":40.62,"h":2.7,"t":"生态优先、节约集约、绿色低碳发展"},{"x":78.0,"y":64.86,"w":17.94,"h":2.43,"t":"人与自然和谐共"},{"x":14.31,"y":67.71,"w":2.06,"h":2.49,"t":"生"},{"x":9.19,"y":73.67,"w":55.81,"h":2.63,"t":"（五）万能答案（完全不会写的时候再用）"}],"73":[{"x":34.42,"y":30.73,"w":5.01,"h":2.21,"t":"5大"},{"x":3.5,"y":36.12,"w":35.5,"h":2.08,"t":"（一）民族复兴原理词模版"},{"x":8.56,"y":43.46,"w":9.88,"h":2.01,"t":"鸦片战争"},{"x":72.31,"y":43.46,"w":17.75,"h":2.01,"t":"逐渐沦为半殖民"},{"x":8.5,"y":46.3,"w":15.06,"h":2.08,"t":"地半封建社会"},{"x":39.5,"y":46.3,"w":15.19,"h":2.08,"t":"两大主要矛盾"},{"x":59.31,"y":49.13,"w":15.19,"h":2.21,"t":"两大历史任务"},{"x":77.94,"y":54.88,"w":12.31,"h":2.21,"t":"反帝反封建"},{"x":8.69,"y":57.72,"w":74.19,"h":2.08,"t":"的革命才是结束半殖民地半封建社会国情和人民悲惨命运的唯一出路。"},{"x":73.12,"y":71.42,"w":17.25,"h":2.35,"t":"然而不触动封建"},{"x":8.75,"y":74.26,"w":76.5,"h":2.15,"t":"根基的自强运动、改良主义、旧式的农民战争和资本主义方案都失败了"},{"x":3.88,"y":77.51,"w":57.06,"h":2.21,"t":"（二）马克思主义中国化时代化原理词模版"},{"x":27.5,"y":84.78,"w":18.38,"h":2.35,"t":"第一次世界大战"},{"x":31.94,"y":87.54,"w":56.0,"h":2.49,"t":"对西方的资本主义方案产生怀疑与失望。十月革命"},{"x":16.94,"y":90.31,"w":58.06,"h":2.63,"t":"马克思主义作为一种救国的主义和信仰开始传人中国"}],"74":[{"x":55.94,"y":6.64,"w":27.31,"h":1.94,"t":"五四运动后的新文化运动"},{"x":73.5,"y":9.34,"w":22.69,"h":2.21,"t":"中国人民在反复比较"},{"x":14.75,"y":12.39,"w":27.62,"h":1.87,"t":"中最终选择了马克思主义"},{"x":22.44,"y":15.29,"w":22.38,"h":1.94,"t":"中国共产党应运而生。"},{"x":20.19,"y":43.04,"w":7.19,"h":1.87,"t":"十八大"},{"x":33.06,"y":48.65,"w":63.5,"h":1.94,"t":"更为完善的制度保证、更为坚实的物质基础、更为主动的"},{"x":15.06,"y":51.63,"w":9.88,"h":1.73,"t":"精神力量"},{"x":38.0,"y":51.63,"w":58.63,"h":1.73,"t":"迎来了从站起来、富起来到强起来的伟大飞跃，中华"},{"x":15.19,"y":54.33,"w":44.06,"h":2.08,"t":"民族伟大复兴从不可逆转走向势不可挡。"},{"x":69.69,"y":68.1,"w":25.75,"h":2.01,"t":"世界百年未有之大变局，"},{"x":25.44,"y":70.87,"w":33.0,"h":2.15,"t":"中华民族伟大复兴的战略全局"},{"x":67.88,"y":70.87,"w":14.31,"h":2.15,"t":"“两个结合”，"},{"x":79.12,"y":76.68,"w":17.56,"h":2.01,"t":"对中国特色社会"},{"x":15.5,"y":79.45,"w":24.88,"h":2.15,"t":"主义建设规律的新跃升"},{"x":43.31,"y":84.91,"w":38.0,"h":2.35,"t":"实现了马克思主义中国化新的飞跃"},{"x":43.75,"y":87.75,"w":36.25,"h":2.35,"t":"是中华文化主体性的最有力体现。"},{"x":84.19,"y":90.66,"w":12.62,"h":2.28,"t":"重大政治成"}],"75":[{"x":8.38,"y":6.77,"w":2.06,"h":1.86,"t":"果"},{"x":8.25,"y":9.6,"w":12.31,"h":1.86,"t":"决定性意义"},{"x":15.62,"y":12.5,"w":51.81,"h":1.73,"t":"取得历史性成就、发生历史性变革的决定性因素"},{"x":23.12,"y":15.33,"w":36.94,"h":1.73,"t":"最大确定性、最大底气、最大保证。"},{"x":3.25,"y":18.51,"w":35.5,"h":2.0,"t":"（三）党的成就原理词模版"},{"x":41.44,"y":25.97,"w":17.62,"h":2.0,"t":"新民主主义革命"},{"x":26.12,"y":28.8,"w":15.06,"h":2.0,"t":"根本社会条件"},{"x":52.12,"y":28.8,"w":23.31,"h":2.0,"t":"社会主义革命和建设"},{"x":41.5,"y":31.7,"w":27.75,"h":1.86,"t":"根本政治前提和制度基础"},{"x":79.81,"y":31.7,"w":10.0,"h":1.86,"t":"改革开放"},{"x":8.38,"y":34.46,"w":25.06,"h":1.93,"t":"和社会主义现代化建设"},{"x":56.88,"y":34.46,"w":33.0,"h":1.93,"t":"中华民族从站起来到富起来的"},{"x":8.31,"y":37.36,"w":9.88,"h":1.86,"t":"伟大飞跃"},{"x":28.44,"y":37.36,"w":28.06,"h":1.86,"t":"新时代中国特色社会主义"},{"x":28.06,"y":42.96,"w":61.94,"h":2.21,"t":"迎来了从站起来、富起来到强起来的伟大飞跃，中华民族"},{"x":8.25,"y":46.06,"w":24.56,"h":1.93,"t":"伟大复兴进程势不可挡。"},{"x":56.88,"y":56.84,"w":12.38,"h":2.07,"t":"彻底结束了"},{"x":28.81,"y":59.74,"w":12.25,"h":2.0,"t":"彻底结束了"},{"x":87.69,"y":59.74,"w":2.31,"h":2.0,"t":"彻"},{"x":8.5,"y":62.57,"w":9.62,"h":2.07,"t":"底结束了"},{"x":46.75,"y":62.57,"w":12.25,"h":2.07,"t":"彻底废除了"},{"x":46.75,"y":65.33,"w":43.25,"h":2.14,"t":"实现了中国从几千年封建专制政治向人"},{"x":8.62,"y":68.02,"w":74.88,"h":2.28,"t":"民民主的伟大飞跃，为实现中华民族伟大复兴创造了根本社会条件。"},{"x":39.25,"y":76.04,"w":48.25,"h":2.42,"t":"中国历史上最深刻最伟大的社会变革，消灭"},{"x":28.94,"y":79.01,"w":21.25,"h":2.21,"t":"封建剥削压迫制度，"},{"x":69.88,"y":79.01,"w":9.88,"h":2.21,"t":"真正成为"},{"x":88.0,"y":79.01,"w":2.19,"h":2.21,"t":"主"},{"x":8.69,"y":81.77,"w":64.62,"h":2.42,"t":"人，实现了中华民族有史以来最为广泛而深刻的社会变革。"},{"x":34.19,"y":84.67,"w":4.69,"h":2.28,"t":"一切"},{"x":57.12,"y":84.67,"w":9.94,"h":2.28,"t":"制度基础"},{"x":42.0,"y":87.43,"w":19.88,"h":2.28,"t":"重要前提，实现了"},{"x":52.06,"y":90.12,"w":38.19,"h":2.49,"t":"伟大飞跃，为实现中华民族伟大复"}],"76":[{"x":14.62,"y":6.7,"w":38.0,"h":2.14,"t":"兴奠定了根本政治前提和制度基础。"},{"x":43.94,"y":25.62,"w":52.31,"h":2.14,"t":"当时党面临的主要任务是，继续探索中国建设"},{"x":14.69,"y":28.38,"w":81.62,"h":2.35,"t":"社会主义的正确道路，解放和发展社会生产力，使人民摆脱贫困、尽快"},{"x":14.75,"y":31.22,"w":81.56,"h":2.35,"t":"富裕起来，为实现中华民族伟大复兴提供充满新的活力的体制保证和快"},{"x":14.75,"y":34.12,"w":22.56,"h":2.14,"t":"速发展的物质条件。"},{"x":45.38,"y":62.22,"w":50.94,"h":1.93,"t":"党的十一届三中全会之后，我国进人了改革开"},{"x":14.62,"y":64.92,"w":39.31,"h":2.07,"t":"放和社会主义现代化建设的新时期。"},{"x":17.25,"y":67.96,"w":22.62,"h":1.8,"t":"党团结带领中国人民"},{"x":68.31,"y":67.96,"w":28.0,"h":1.8,"t":"创造了改革开放和社会主"},{"x":14.81,"y":70.86,"w":27.69,"h":1.73,"t":"义现代化建设的伟大成就"},{"x":50.5,"y":70.86,"w":45.81,"h":1.73,"t":"实现新中国成立以来党的历史上具有深远"},{"x":14.69,"y":73.62,"w":17.62,"h":1.73,"t":"意义的伟大转折"},{"x":45.38,"y":73.62,"w":32.88,"h":1.73,"t":"社会主义初级阶段的基本路线"},{"x":27.44,"y":76.31,"w":68.88,"h":1.73,"t":"实现了从高度集中的计划经济体制到充满活力的社会主义市场"},{"x":14.78,"y":79.07,"w":58.58,"h":1.52,"t":"经济体制、从封闭半封闭到全方位开放的历史性转变"},{"x":75.94,"y":81.7,"w":20.31,"h":2.0,"t":"实现了人民生活从"},{"x":14.56,"y":84.67,"w":81.69,"h":1.73,"t":"温饱不足到总体小康、奔向全面小康的历史性跨越，为实现中华民族伟大"},{"x":14.62,"y":87.71,"w":67.44,"h":1.93,"t":"复兴提供了充满新的活力的体制保证和快速发展的物质条件"}],"77":[{"x":3.5,"y":16.54,"w":32.56,"h":2.01,"t":"（四）重要历史事件模版"},{"x":80.25,"y":23.74,"w":9.94,"h":1.94,"t":"中国共产"},{"x":3.31,"y":26.51,"w":86.81,"h":2.01,"t":"党是中国近代历史发展的必然产物，是马克思主义与中国工人运动结合的产"},{"x":3.25,"y":29.2,"w":3.56,"h":2.15,"t":"物。"},{"x":39.25,"y":34.95,"w":51.0,"h":2.08,"t":"中国革命必然呼唤新的领导力量与革命新道路"},{"x":52.0,"y":40.69,"w":38.25,"h":2.01,"t":"马克思主义得以广泛传播，并不断"},{"x":3.38,"y":43.53,"w":51.25,"h":2.01,"t":"与中国工人运动相结合，中国共产党应运而生"},{"x":13.94,"y":62.63,"w":31.06,"h":2.15,"t":"历史进程和社会条件的制约"},{"x":53.25,"y":62.63,"w":10.19,"h":2.15,"t":"没有找到"},{"x":47.88,"y":65.4,"w":10.25,"h":2.08,"t":"没有改变"},{"x":45.31,"y":68.17,"w":10.31,"h":2.15,"t":"没有完成"},{"x":53.06,"y":79.45,"w":7.5,"h":2.15,"t":"，推翻了"},{"x":79.69,"y":79.45,"w":7.62,"h":2.15,"t":"结束了"},{"x":11.38,"y":84.91,"w":12.62,"h":2.28,"t":"拉开了序幕"}],"78":[{"x":22.56,"y":12.32,"w":40.56,"h":2.08,"t":"为实现中华民族伟大复兴探索了道路。"},{"x":35.5,"y":20.9,"w":60.62,"h":1.73,"t":"，中国共产党应运而生，这是开天辟地的大事变，实现"},{"x":15.0,"y":23.67,"w":37.94,"h":1.73,"t":"中华民族伟大复兴的灯塔由此点亮。"},{"x":20.25,"y":32.32,"w":16.44,"h":1.73,"t":"支持者、合作者"},{"x":20.19,"y":43.6,"w":7.31,"h":1.73,"t":"继承者"},{"x":38.44,"y":59.79,"w":55.31,"h":2.01,"t":"，资产阶级新文化开始打破封建文化独占文化阵地"},{"x":46.19,"y":65.47,"w":12.88,"h":2.08,"t":"的新文化运动"},{"x":91.69,"y":65.47,"w":4.81,"h":2.08,"t":"西方"},{"x":15.31,"y":68.37,"w":15.0,"h":1.94,"t":"的民主和科学"},{"x":67.62,"y":71.21,"w":28.88,"h":1.94,"t":"为马克思主义的传播准备"},{"x":15.38,"y":76.75,"w":9.81,"h":1.94,"t":"）五四运动"},{"x":52.0,"y":76.75,"w":34.0,"h":1.94,"t":"走向新民主主义革命的转折点"},{"x":54.81,"y":90.73,"w":41.69,"h":2.15,"t":"五四运动以全民族的行动激发了追求"}],"79":[{"x":8.88,"y":6.72,"w":71.25,"h":2.01,"t":"真理、追求进步的伟大觉醒，是自鸦片战争以来第一次全面觉醒。"},{"x":43.38,"y":9.56,"w":45.38,"h":2.01,"t":"马克思主义同中华优秀传统文化相结合，"},{"x":49.75,"y":26.61,"w":40.12,"h":2.01,"t":"中国共产党在大革命中起着独特的、"},{"x":8.81,"y":29.59,"w":63.62,"h":1.73,"t":"不可替代的作用。没有中国共产党，就不会有这场大革命。"},{"x":42.75,"y":62.65,"w":7.56,"h":2.08,"t":"转折点"},{"x":71.69,"y":62.65,"w":7.5,"h":2.08,"t":"粉碎了"},{"x":39.88,"y":65.49,"w":7.5,"h":2.01,"t":"洗刷了"},{"x":19.19,"y":68.19,"w":4.69,"h":2.22,"t":"坚定"},{"x":79.81,"y":68.19,"w":7.44,"h":2.22,"t":"开启了"},{"x":38.0,"y":79.42,"w":7.56,"h":2.43,"t":"一开始"},{"x":54.12,"y":79.42,"w":34.69,"h":2.43,"t":"拯救人类文明、捍卫人类正义、"},{"x":9.0,"y":82.19,"w":15.0,"h":2.36,"t":"保卫世界和平"}],"80":[{"x":51.81,"y":6.86,"w":7.44,"h":2.29,"t":"宣告了"},{"x":15.0,"y":9.77,"w":12.31,"h":2.15,"t":"重新确立了"},{"x":22.75,"y":12.61,"w":4.81,"h":2.29,"t":"尊敬。"},{"x":28.0,"y":21.07,"w":25.87,"h":2.15,"t":"应运而生的中国共产党"},{"x":17.81,"y":23.84,"w":9.81,"h":2.36,"t":"关键力量"},{"x":48.5,"y":23.84,"w":25.19,"h":2.36,"t":"精神上由被动转为主动。"},{"x":61.12,"y":26.75,"w":7.19,"h":2.15,"t":"主心骨"},{"x":94.38,"y":26.75,"w":2.12,"h":2.15,"t":"民"},{"x":15.25,"y":29.52,"w":7.19,"h":2.22,"t":"族先锋"},{"x":45.38,"y":29.52,"w":9.94,"h":2.22,"t":"抗日武装"},{"x":15.25,"y":32.43,"w":9.75,"h":1.94,"t":"敌后战场"},{"x":84.12,"y":32.43,"w":9.88,"h":1.94,"t":"中坚力量"},{"x":35.25,"y":35.14,"w":4.62,"h":2.08,"t":"核心"},{"x":94.25,"y":35.14,"w":2.44,"h":2.08,"t":"抗"},{"x":15.75,"y":37.91,"w":16.75,"h":2.08,"t":"日民族统一战线"},{"x":73.88,"y":37.91,"w":22.69,"h":2.08,"t":"民族觉醒和民族精神"},{"x":15.44,"y":40.89,"w":24.5,"h":1.94,"t":"升华达到了全新的高度。"},{"x":33.31,"y":43.73,"w":26.06,"h":1.94,"t":"坚持马克思主义中国化"},{"x":89.0,"y":43.73,"w":7.56,"h":1.94,"t":"正确方"},{"x":15.5,"y":46.43,"w":2.0,"h":2.08,"t":"向"},{"x":28.31,"y":46.43,"w":15.06,"h":2.08,"t":"全面抗战路线"},{"x":54.44,"y":46.43,"w":20.94,"h":2.08,"t":"持久战战略总方针"},{"x":18.19,"y":57.59,"w":52.12,"h":2.15,"t":"中流砥柱作用是中国人民抗日战争胜利的关键"},{"x":15.5,"y":60.5,"w":40.62,"h":1.87,"t":"胜利提供了强大精神支柱和动力源泉。"},{"x":83.44,"y":66.87,"w":11.88,"h":1.87,"t":"决定性因素。"},{"x":84.81,"y":69.65,"w":4.62,"h":1.94,"t":"关键。"},{"x":66.75,"y":72.42,"w":9.94,"h":1.73,"t":"重要法宝。"},{"x":43.94,"y":77.82,"w":30.25,"h":2.22,"t":"反法西斯力量的同情和支持"},{"x":31.0,"y":88.29,"w":7.19,"h":2.15,"t":"确立了"},{"x":86.75,"y":88.29,"w":10.06,"h":2.15,"t":"开始确立"}],"81":[{"x":8.75,"y":6.69,"w":9.94,"h":1.93,"t":"开始形成"},{"x":26.5,"y":9.45,"w":26.31,"h":2.14,"t":"解决中国革命实际问题"},{"x":74.12,"y":9.45,"w":15.62,"h":2.14,"t":"党在政治上开"},{"x":8.69,"y":12.48,"w":12.5,"h":1.79,"t":"始走向成熟。"},{"x":79.56,"y":18.0,"w":10.25,"h":2.0,"t":"中国革命"},{"x":8.75,"y":20.9,"w":19.94,"h":1.93,"t":"的新局面就开始了"},{"x":3.38,"y":57.93,"w":20.12,"h":2.34,"t":"（五）万能答案"},{"x":70.94,"y":61.1,"w":18.88,"h":2.14,"t":"继续弘扬×x精神"},{"x":45.38,"y":63.93,"w":26.06,"h":2.14,"t":"中国特色社会主义道路"},{"x":82.19,"y":63.93,"w":7.69,"h":2.14,"t":"，继续推"},{"x":8.25,"y":66.9,"w":81.56,"h":2.0,"t":"进马克思主义中国化时代化，以中国式现代化全面推进强国建设、民族复"},{"x":8.38,"y":69.45,"w":2.25,"h":2.34,"t":"兴"},{"x":18.69,"y":75.1,"w":71.25,"h":2.21,"t":"为全面建设社会主义现代化国家、全面推进中华民族伟大复兴而"}],"82":[{"x":9.94,"y":15.72,"w":50.81,"h":2.21,"t":"（一）人物故事、青春奋斗原理词模版"},{"x":22.69,"y":31.72,"w":73.81,"h":2.07,"t":"理想信念是人生发展的内在动力，昭示人生的奋斗目标，提供人生"},{"x":15.19,"y":34.62,"w":51.62,"h":2.14,"t":"的前行动力，是衡量精神境界高下的重要标尺"},{"x":45.06,"y":45.72,"w":7.06,"h":2.14,"t":"实质上"},{"x":57.44,"y":48.62,"w":39.38,"h":1.93,"t":"社会理想是理想体系中最根本、最重"},{"x":15.44,"y":51.38,"w":5.56,"h":2.14,"t":"要的，"},{"x":72.44,"y":57.1,"w":24.5,"h":2.21,"t":"因此，我们要将个人理"},{"x":15.44,"y":60.07,"w":70.19,"h":2.14,"t":"想融人社会理想之中，在为社会理想奋斗的过程中实现个人理想。"},{"x":84.94,"y":68.07,"w":12.0,"h":2.21,"t":"“应然”和"},{"x":15.56,"y":70.97,"w":7.44,"h":2.07,"t":"“实然"},{"x":69.12,"y":87.86,"w":27.88,"h":2.28,"t":"实现理想，必须树立坚定"},{"x":15.69,"y":90.69,"w":62.06,"h":2.21,"t":"的信念，而勇于实践、艰苦奋斗是实现理想的根本途径。"}],"83":[{"x":8.38,"y":10.48,"w":22.62,"h":1.72,"t":"服务人民、奉献社会"},{"x":54.19,"y":10.48,"w":20.06,"h":1.72,"t":"最先进的人生追求"},{"x":23.56,"y":18.83,"w":27.75,"h":1.72,"t":"人生的价值首先在于奉献。"},{"x":66.94,"y":29.52,"w":22.75,"h":2.0,"t":"人生的自我价值是个"},{"x":8.38,"y":32.34,"w":81.31,"h":1.86,"t":"人生存发展的必要条件，也是为社会创造更大价值的前提，包含着满足社"},{"x":8.25,"y":35.03,"w":20.06,"h":2.14,"t":"会需要的价值属性"},{"x":44.06,"y":35.03,"w":45.38,"h":2.14,"t":"社会价值是社会存在和发展的重要条件，"},{"x":8.31,"y":37.93,"w":35.62,"h":2.0,"t":"是实现个体自我完善发展的保障"},{"x":8.44,"y":73.72,"w":81.38,"h":2.34,"t":"奋发向上、勇于进取是中华民族发展的宝贵精神财富，是建设社会主义伟"},{"x":8.5,"y":76.69,"w":81.38,"h":2.07,"t":"大事业的强大动力。勇于砥砺奋斗，是新时代中国青年担当时代使命必备"},{"x":8.5,"y":79.45,"w":73.5,"h":2.21,"t":"的精神品格。奋斗精神是中华传统美德，是时代新人的重要标志。"},{"x":51.94,"y":87.79,"w":38.0,"h":2.28,"t":"在新时代新征程上，我们要发扬奋"},{"x":8.81,"y":90.48,"w":81.19,"h":2.41,"t":"斗精神，锤炼奋斗品质、激发奋斗热情、增强奋斗本领，做肯奋斗的新时"}],"84":[{"x":14.56,"y":6.48,"w":11.12,"h":2.14,"t":"代好青年。"},{"x":9.94,"y":18.9,"w":73.0,"h":2.34,"t":"（二）各种“精神”与红色故事、爱国主义原理词模版"},{"x":15.12,"y":40.07,"w":30.25,"h":2.14,"t":"爱国主义是具体的、历史的"},{"x":71.44,"y":51.52,"w":25.37,"h":2.0,"t":"爱国是个人实现人生价"},{"x":15.38,"y":54.28,"w":61.88,"h":2.21,"t":"值的力量之源，是每个人都应当自觉履行的责任和义务。"},{"x":15.5,"y":81.93,"w":28.94,"h":2.41,"t":"英雄是民族最闪亮的坐标。"},{"x":23.31,"y":87.72,"w":73.75,"h":2.14,"t":"大力弘扬民族精神和时代精神，充分发挥英雄精神引领、典型示范"},{"x":15.62,"y":90.48,"w":4.62,"h":2.41,"t":"作用"}],"85":[{"x":12.88,"y":6.56,"w":76.44,"h":2.0,"t":"持续激发全国各族人民为以中国式现代化全面推进强国建设、民族复"},{"x":7.88,"y":9.25,"w":21.25,"h":2.14,"t":"兴伟业而团结奋斗。"},{"x":8.0,"y":17.4,"w":14.94,"h":2.0,"t":"中国革命道德"},{"x":61.38,"y":17.4,"w":28.0,"h":2.0,"t":"党领导全体人民实现民族"},{"x":7.88,"y":20.44,"w":30.25,"h":1.73,"t":"独立、人民解放的精神支撑"},{"x":66.5,"y":23.2,"w":7.31,"h":1.86,"t":"有利于"},{"x":47.0,"y":25.9,"w":7.5,"h":2.14,"t":"有利于"},{"x":12.94,"y":28.66,"w":7.31,"h":2.14,"t":"有利于"},{"x":56.31,"y":28.66,"w":7.38,"h":2.14,"t":"有利于"},{"x":12.94,"y":31.56,"w":9.94,"h":2.07,"t":"红色资源"},{"x":70.94,"y":31.56,"w":18.44,"h":2.07,"t":"最宝贵的精神财"},{"x":7.94,"y":34.53,"w":14.94,"h":1.86,"t":"富。红色血脉"},{"x":10.44,"y":37.43,"w":15.0,"h":1.93,"t":"精神力量源泉。"},{"x":2.94,"y":40.54,"w":66.19,"h":2.28,"t":"（三）社会主义核心价值观与家风建设原理词模版"},{"x":57.69,"y":47.79,"w":31.69,"h":2.21,"t":"：弘扬社会主义核心价值观是"},{"x":7.94,"y":50.76,"w":81.38,"h":1.93,"t":"坚持和发展中国特色社会主义的价值遵循，是提高国家文化软实力的迫切"},{"x":7.94,"y":53.66,"w":45.0,"h":1.86,"t":"要求，也是增进社会团结的最大公约数。"},{"x":41.19,"y":59.32,"w":48.31,"h":2.14,"t":"是建设中国特色社会主义现代化强国、实现"},{"x":8.12,"y":62.15,"w":41.25,"h":2.0,"t":"中华民族伟大复兴中国梦的价值引领。"},{"x":20.81,"y":81.7,"w":20.06,"h":2.42,"t":"要扣好人生的扣子"},{"x":76.94,"y":81.7,"w":12.5,"h":2.42,"t":"人生价值追"},{"x":8.06,"y":84.6,"w":25.25,"h":2.21,"t":"求融人国家和民族事业"}],"86":[{"x":15.5,"y":14.64,"w":81.38,"h":1.73,"t":"家庭和睦是社会安定的基石，是社会安定的基础。良好家风不仅影响家庭"},{"x":15.56,"y":17.27,"w":48.06,"h":1.93,"t":"命运，也关乎社会文明风尚与国家治理效能"},{"x":38.56,"y":20.1,"w":30.12,"h":1.86,"t":"就是抓国家建设和社会治理"},{"x":77.0,"y":20.1,"w":20.0,"h":1.86,"t":"为推进社会主义现"},{"x":15.62,"y":23.0,"w":53.0,"h":1.73,"t":"代化强国建设、实现中华民族伟大复兴夯基垒台"},{"x":15.56,"y":25.83,"w":81.49,"h":1.73,"t":"提升人民文明素养和社会文明程度的重要基础，是满足人民群众幸福美好"},{"x":15.69,"y":28.52,"w":81.31,"h":2.0,"t":"生活需要的有效途径，是弘扬中华优秀传统文化的有力举措，是培养社会"},{"x":15.81,"y":31.28,"w":34.94,"h":2.14,"t":"主义建设者和接班人的战略任务。"},{"x":10.62,"y":34.53,"w":29.31,"h":2.0,"t":"（四）法律原理词模版"},{"x":44.06,"y":41.51,"w":52.94,"h":1.93,"t":"有序的公共生活是社会生产活动的重要基础，是"},{"x":15.56,"y":44.54,"w":69.56,"h":1.73,"t":"提高社会成员生活质量的基本保障，更是社会文明的重要标志。"},{"x":54.12,"y":60.5,"w":7.06,"h":2.07,"t":"本质上"},{"x":84.69,"y":79.28,"w":12.44,"h":2.35,"t":"本质要求和"},{"x":15.81,"y":82.25,"w":9.75,"h":2.0,"t":"重要保障"}],"87":[{"x":7.44,"y":20.34,"w":35.06,"h":1.72,"t":"法治是国家治理体系和治理能力"},{"x":12.56,"y":25.86,"w":68.31,"h":2.07,"t":"关系党执政兴国，关系人民幸福安康，关系党和国家长治久安"},{"x":43.25,"y":28.83,"w":22.44,"h":1.86,"t":"本质要求和重要保障"},{"x":83.81,"y":28.83,"w":4.81,"h":1.86,"t":"不仅"},{"x":7.44,"y":31.66,"w":12.38,"h":2.0,"t":"是治国理念"},{"x":27.81,"y":31.66,"w":42.94,"h":2.0,"t":"国家治理基本方针方式的一场深刻革命"},{"x":22.69,"y":37.59,"w":22.56,"h":1.72,"t":"根本遵循和行动指南。"},{"x":54.37,"y":75.93,"w":7.44,"h":2.34,"t":"总依据"},{"x":36.06,"y":84.55,"w":9.88,"h":2.34,"t":"根本纽带。"}],"88":[{"x":10.75,"y":9.79,"w":20.12,"h":2.55,"t":"（五）万能答案"},{"x":15.88,"y":17.03,"w":81.12,"h":2.28,"t":"今天，我们比历史上任何时期都更接近、更有信心和能力实现中华民族伟"},{"x":15.94,"y":20.07,"w":81.12,"h":1.93,"t":"大复兴的目标。作为新时代的中国青年，就要树立正确的世界观、人生"},{"x":15.94,"y":22.97,"w":81.25,"h":1.72,"t":"观、价值观，坚定中国特色社会主义共同理想，筑牢理想信念之基。厚植"},{"x":15.94,"y":25.79,"w":81.25,"h":1.72,"t":"爱国主义情怀，弘扬民族精神和时代精神。学习和践行社会主义核心价值"},{"x":16.06,"y":28.55,"w":28.62,"h":1.93,"t":"观，内化于心、外化于行。"},{"x":59.13,"y":31.45,"w":38.12,"h":1.72,"t":"将个人奋斗与实现社会价值统一起"},{"x":16.0,"y":34.07,"w":81.19,"h":2.14,"t":"来，把个体的小我融人祖国的大我、人民的大我之中，积极投身实践，立"},{"x":16.06,"y":36.97,"w":81.25,"h":2.0,"t":"志做有理想、敢担当、能吃苦、肯奋斗的新时代好青年，让青春在全面建"},{"x":16.06,"y":39.72,"w":56.81,"h":2.14,"t":"设社会主义现代化国家的火热实践中绽放绚丽之花。"},{"x":63.31,"y":61.66,"w":34.06,"h":2.21,"t":"。我们要自觉地遵法、学法、守"},{"x":16.19,"y":64.41,"w":81.19,"h":2.28,"t":"法、用法、护法，尊重和维护法律权威，树立社会主义法治思维方式和法"},{"x":16.19,"y":67.17,"w":81.19,"h":2.34,"t":"治观念，养成守法习惯，依法正确行使法律权利和履行法律义务，不断提"},{"x":16.19,"y":69.93,"w":21.19,"h":2.14,"t":"升自己的法治素养。"},{"x":76.89,"y":90.14,"w":7.1,"h":1.93,"t":"5分/页"},{"x":90.81,"y":90.14,"w":4.44,"h":1.93,"t":"包邮"}]}</script>
+<script id="tocData" type="application/json">[{"t":"一、重要会议总结","p":7,"g":"第01部分","pt":"选择题4大核心线索背诵总结"},{"t":"二、重要人物及文献总结","p":17,"g":"第01部分","pt":"选择题4大核心线索背诵总结"},{"t":"三、重要土地政策总结","p":24,"g":"第01部分","pt":"选择题4大核心线索背诵总结"},{"t":"四、重要思想解放总结","p":27,"g":"第01部分","pt":"选择题4大核心线索背诵总结"},{"t":"一、应对新命题的选择题技巧：先定位再对应","p":31,"g":"第02部分","pt":"选择题核心专题背诵总结"},{"t":"二、13大常考第一梯队K总结","p":33,"g":"第02部分","pt":"选择题核心专题背诵总结"},{"t":"三、常考绝对表述K总结","p":35,"g":"第02部分","pt":"选择题核心专题背诵总结"},{"t":"四、经典干扰项总结","p":38,"g":"第02部分","pt":"选择题核心专题背诵总结"},{"t":"五、经典易混词总结","p":46,"g":"第02部分","pt":"选择题核心专题背诵总结"},{"t":"六、关于“关键”“标志”的总结","p":46,"g":"第02部分","pt":"选择题核心专题背诵总结"},{"t":"七、关于“源泉”“本质”“规律”的总结","p":50,"g":"第02部分","pt":"选择题核心专题背诵总结"},{"t":"八、关于“反侵略斗争”的总结","p":51,"g":"第02部分","pt":"选择题核心专题背诵总结"},{"t":"九、关于“寓于”与计算公式的总结","p":52,"g":"第02部分","pt":"选择题核心专题背诵总结"},{"t":"十、全年时政总结（11月更新）","p":52,"g":"第02部分","pt":"选择题核心专题背诵总结"},{"t":"一、马原5大原理词模版与万能答案","p":53,"g":"第03部分","pt":"分析题核心背诵总结"},{"t":"二、新思想5大原理词模版与万能答案","p":65,"g":"第03部分","pt":"分析题核心背诵总结"},{"t":"三、史纲5大原理词模版与万能答案","p":73,"g":"第03部分","pt":"分析题核心背诵总结"},{"t":"四、思修道法5大原理与万能答案","p":82,"g":"第03部分","pt":"分析题核心背诵总结"}]</script>
+<script>
+(function(){
+  'use strict';
+  var N = 89;
+  var BLANKS = JSON.parse(document.getElementById('blankData').textContent);
+  var TOC = JSON.parse(document.getElementById('tocData').textContent);
+  var TITLE = document.title;
+  var DAY = 86400000;
+  var IV = [0, 1, 2, 4, 7, 15, 30];   /* 等级 1..6 -> 下次复习间隔（天） */
+  var body = document.body;
+  var viewport = document.getElementById('viewport');
+  var track = document.getElementById('track');
+  var idxEl = document.getElementById('idx');
+  var slider = document.getElementById('slider');
+  var jump = document.getElementById('jump');
+  var lvEl = document.getElementById('lv');
+  var toastEl = document.getElementById('toast');
+  var scrim = document.getElementById('sheetScrim');
+  var sideEl = document.getElementById('side');
+  var sideScrim = document.getElementById('sideScrim');
+  var sideBody = document.getElementById('sideBody');
+
+  /* ================= 存储（localStorage 全部 try/catch，隐私模式也不炸） ================= */
+  var memStore = {};
+  function lsGet(k){
+    try { return window.localStorage.getItem(k); }
+    catch (e) { return Object.prototype.hasOwnProperty.call(memStore, k) ? memStore[k] : null; }
+  }
+  function lsSet(k, v){
+    try { window.localStorage.setItem(k, v); }
+    catch (e) { memStore[k] = v; }
+  }
+  function lsDel(k){
+    try { window.localStorage.removeItem(k); }
+    catch (e) { delete memStore[k]; }
+  }
+  function readJSON(k, dft){
+    try {
+      var v = JSON.parse(lsGet(k) || 'null');
+      return (v && typeof v === 'object') ? v : dft;
+    } catch (e) { return dft; }
+  }
+  function fnv(s){
+    var h = 0x811c9dc5;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = (h * 0x01000193) >>> 0; }
+    return ('0000000' + h.toString(16)).slice(-8);
+  }
+  /* 用「书名 + 页数」生成稳定 key：同一本书重跑生成器（文件名换了）也接得上进度；
+     前缀 dsh-r4- 与旧版 dsh-pv2-<文件名> 不冲突。 */
+  var KEY = fnv(TITLE + '|' + N);
+  var K_PREF = 'dsh-r4-prefs-' + KEY;
+  var K_PROG = 'dsh-r4-progress-' + KEY;
+  var PREF = readJSON(K_PREF, {});
+  var PROG = readJSON(K_PROG, {});
+  var HINTS = readJSON('dsh-r4-hints', {});   /* 一次性提示标记，全站只弹第一次 */
+  if (!PROG.pages) PROG.pages = {};
+  PROG.v = 4;
+  function savePref(){ lsSet(K_PREF, JSON.stringify(PREF)); }
+  function saveHints(){ lsSet('dsh-r4-hints', JSON.stringify(HINTS)); }
+  function saveProg(){
+    PROG.v = 4;
+    PROG.title = TITLE;
+    PROG.n = N;
+    PROG.key = KEY;
+    lsSet(K_PROG, JSON.stringify(PROG));
+  }
+
+  /* ================= 时间 / 遗忘曲线 ================= */
+  function startOf(ts){
+    var d = ts ? new Date(ts) : new Date();
+    d.setHours(0, 0, 0, 0);
+    return d.getTime();
+  }
+  function diffDays(ts){ return Math.round((startOf(ts) - startOf()) / DAY); }
+  function fmtDate(ts){ var d = new Date(ts); return (d.getMonth() + 1) + '月' + d.getDate() + '日'; }
+  function fmtWhen(ts){
+    var d = diffDays(ts);
+    if (d <= 0) return '今天';
+    if (d === 1) return '明天';
+    return d + ' 天后（' + fmtDate(ts) + '）';
+  }
+  function p2(n){ return n < 10 ? '0' + n : '' + n; }
+  /* 每页都写一个本地时区的 ISO 日期 next，给首页 index.html 统计「今日待复习」用 */
+  function isoOf(ts){ var d = new Date(ts); return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); }
+  function backfillNext(){
+    var k, changed = false;
+    for (k in PROG.pages) {
+      if (!Object.prototype.hasOwnProperty.call(PROG.pages, k)) continue;
+      var r = PROG.pages[k];
+      if (r && r.lv > 0 && r.due && !r.next) { r.next = isoOf(r.due); changed = true; }
+    }
+    if (changed) saveProg();
+  }
+  function recOf(p){ return PROG.pages[p] || null; }
+  function lvOf(p){ var r = PROG.pages[p]; return (r && r.lv) ? r.lv : 0; }
+  function learnedCount(){
+    var n = 0, k;
+    for (k in PROG.pages) { if (PROG.pages[k] && PROG.pages[k].lv > 0) n++; }
+    return n;
+  }
+  function masteredCount(){
+    var n = 0, k;
+    for (k in PROG.pages) { if (PROG.pages[k] && PROG.pages[k].lv >= 4) n++; }
+    return n;
+  }
+  function dueList(){
+    var out = [], te = startOf() + DAY - 1, k;
+    for (k in PROG.pages) {
+      if (!Object.prototype.hasOwnProperty.call(PROG.pages, k)) continue;
+      var r = PROG.pages[k];
+      if (r && r.lv > 0 && r.due && r.due <= te) out.push(parseInt(k, 10));
+    }
+    out.sort(function(a, b){ return (PROG.pages[a].due - PROG.pages[b].due) || (a - b); });
+    return out;
+  }
+
+  /* ================= 主题 / 目录分组 ================= */
+  var groups = [];
+  (function buildGroups(){
+    var last = null;
+    TOC.forEach(function(it){
+      if (it.g !== last) { groups.push({ g: it.g, pt: it.pt, start: it.p, end: it.p }); last = it.g; }
+      groups[groups.length - 1].end = it.p;
+    });
+    for (var i = 0; i < groups.length; i++) {
+      groups[i].start = groups[i].start;
+      groups[i].end = (i + 1 < groups.length) ? (groups[i + 1].start - 1) : N;
+      if (groups[i].end < groups[i].start) groups[i].end = groups[i].start;
+    }
+  })();
+  function findGroup(name){
+    for (var i = 0; i < groups.length; i++) if (groups[i].g === name) return groups[i];
+    return null;
+  }
+  function groupOf(p){
+    if (!groups.length) return { g: '全书', pt: '', start: 1, end: N };
+    for (var i = 0; i < groups.length; i++) {
+      if (p >= groups[i].start && p <= groups[i].end) return groups[i];
+    }
+    return p < groups[0].start ? groups[0] : groups[groups.length - 1];
+  }
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  /* ================= 页面骨架 ================= */
+  /* URL 参数：?page=NN 指定页 / ?review=1 展开今日待复习 / ?random=1 随机抽一页
+     参数优先于 localStorage 里保存的旧页码。 */
+  var QS = {};
+  try {
+    var qs = (window.location.search || '').replace(/^\?/, '');
+    qs.split('&').forEach(function(pair){
+      if (!pair) return;
+      var kv = pair.split('=');
+      QS[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1] || '');
+    });
+  } catch (e0) {}
+  var qpage = parseInt(QS.page, 10);
+  if (!(qpage >= 1 && qpage <= N)) qpage = 0;
+  var cur = qpage || Math.min(N, Math.max(1, parseInt(PREF.p, 10) || 1));
+  var clozeOn = !!PREF.c;
+  var bstyle = PREF.s || 'candy';
+  var collapsed = PREF.k || {};
+  var tab = 'toc';
+  var activeEl = null;
+
+  function pad(n){ return (n < 100 ? (n < 10 ? '00' : '0') : '') + n; }
+  function srcFor(i){ return 'pages-down/p' + pad(i) + '.webp'; }
+  function thFor(i){ return 'thumbs-down/t' + pad(i) + '.webp'; }
+  function ensure(i){
+    if (i < 1 || i > N) return;
+    var el = document.querySelector('#pb' + i + ' img');
+    if (el && !el.getAttribute('src')) el.src = srcFor(i);
+  }
+
+  (function buildSlides(){
+    var html = '';
+    for (var i = 1; i <= N; i++) {
+      html += '<div class="slide" id="sl' + i + '"><div class="pagebox" id="pb' + i + '">'
+        + '<img data-i="' + i + '" alt="">'
+        + '</div><span class="no">' + i + '</span></div>';
+    }
+    track.innerHTML = html;
+  })();
+
+  /* 挖空块：只给当前页前后各 1–2 页建 DOM（240 页 × 3567 个空全建会拖垮 iPad），
+     已揭晓状态记在 openedKeys 里，翻回来还是揭晓过的样子 */
+  var openedKeys = {};
+  function blankKey(p, i){ return p + ':' + i; }
+  function renderBlanks(k){
+    var box = document.getElementById('pb' + k);
+    if (!box || box.getAttribute('data-bb') === '1') return;
+    box.setAttribute('data-bb', '1');
+    var list = BLANKS[k];
+    if (!list || !list.length) return;
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < list.length; i++) {
+      var s = list[i], d = document.createElement('i');
+      d.className = 'blank' + (openedKeys[blankKey(k, i)] ? ' open' : '');
+      d.style.left = s.x + '%';
+      d.style.top = s.y + '%';
+      d.style.width = s.w + '%';
+      d.style.height = s.h + '%';
+      (function (el, kk, ii) {
+        el.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          el.classList.add('open');
+          openedKeys[blankKey(kk, ii)] = 1;
+          updateCnt(kk);
+        });
+      })(d, k, i);
+      frag.appendChild(d);
+    }
+    box.appendChild(frag);
+  }
+  function clearBlanksFar(center){
+    var boxes = document.querySelectorAll('.pagebox[data-bb="1"]');
+    for (var i = 0; i < boxes.length; i++) {
+      var p = parseInt(boxes[i].id.replace('pb', ''), 10);
+      if (Math.abs(p - center) > 3) {
+        var olds = boxes[i].querySelectorAll('.blank');
+        for (var j = 0; j < olds.length; j++) olds[j].parentNode.removeChild(olds[j]);
+        boxes[i].removeAttribute('data-bb');
+      }
+    }
+  }
+  function syncBlanks(center){
+    renderBlanks(center - 1); renderBlanks(center); renderBlanks(center + 1); renderBlanks(center + 2);
+    clearBlanksFar(center);
+  }
+  function updateCnt(k){
+    if (parseInt(k, 10) === cur) refreshCurCnt();
+  }
+  function refreshCurCnt(){
+    var el = document.getElementById('cntCur');
+    if (!el) return;
+    var list = BLANKS[cur] || [];
+    var all = list.length;
+    if (!all) { el.textContent = ''; return; }
+    renderBlanks(cur);
+    var box = document.getElementById('pb' + cur);
+    var open = box ? box.querySelectorAll('.blank.open').length : 0;
+    el.textContent = (all - open) + ' 空';
+  }
+
+  /* ================= 顶栏 / 底栏状态 ================= */
+  function refreshBadge(){
+    var d = dueList();
+    var nEl = document.getElementById('todayN');
+    if (nEl) nEl.textContent = d.length;
+    var b = document.getElementById('btnToday');
+    if (b) b.classList.toggle('hot', d.length > 0);
+    var st = document.getElementById('sideStat');
+    if (st) st.textContent = '已背 ' + learnedCount() + ' / ' + N + ' 页';
+  }
+  function refreshDots(){
+    var els = document.querySelectorAll('[data-dp]');
+    for (var i = 0; i < els.length; i++) {
+      var p = parseInt(els[i].getAttribute('data-dp'), 10);
+      var lv = lvOf(p), rec = recOf(p);
+      els[i].className = 'dot ' + (lv >= 4 ? 'd2' : (lv > 0 ? 'd1' : 'd0'));
+      els[i].setAttribute('title', lv ? ('Lv.' + lv + (rec && rec.due ? ' · 下次 ' + fmtDate(rec.due) : '')) : '未背');
+    }
+    var grps = document.querySelectorAll('.grp');
+    for (var j = 0; j < grps.length; j++) {
+      var g = grps[j].getAttribute('data-g');
+      var gp = grps[j].querySelector('.gp');
+      if (!gp) continue;
+      var gr = findGroup(g);
+      if (!gr) continue;
+      var n = 0;
+      for (var q = gr.start; q <= gr.end; q++) if (lvOf(q) > 0) n++;
+      gp.textContent = n + '/' + (gr.end - gr.start + 1);
+    }
+  }
+  function updateLvChip(){
+    var lv = lvOf(cur), r = recOf(cur);
+    /* 三态标记：未背 / 复习中 / 已熟（Lv>=4 视为已熟） */
+    lvEl.textContent = lv >= 4 ? '已熟' : lv > 0 ? '复习中' : '未背';
+    lvEl.className = 'lv' + (lv >= 4 ? ' d2' : (lv > 0 ? ' d1' : ''));
+    lvEl.title = lv
+      ? ('Lv.' + lv + ' · ' + (r && r.due ? '下次复习 ' + fmtDate(r.due) : ''))
+      : '这一页还没背过';
+  }
+  function afterChange(){
+    refreshBadge(); refreshDots(); updateLvChip();
+    if (openSheetId === 'todaySheet') renderToday();
+    if (openSheetId === 'setSheet') { renderSet(); }
+  }
+
+  /* ================= 目录 / 缩略图 ================= */
+  function markToc(){
+    if (tab === 'toc') {
+      var best = null;
+      TOC.forEach(function(it){ if (it.p <= cur) best = it; });
+      var links = sideBody.querySelectorAll('.toc-item');
+      for (var i = 0; i < links.length; i++) {
+        links[i].classList.toggle('on', !!best && parseInt(links[i].getAttribute('data-p'), 10) === best.p);
+      }
+    } else {
+      var bs = sideBody.querySelectorAll('button[data-p]');
+      for (var j = 0; j < bs.length; j++) {
+        bs[j].classList.toggle('on', parseInt(bs[j].getAttribute('data-p'), 10) === cur);
+      }
+    }
+  }
+  function renderToc(){
+    var html = '', lastG = null;
+    TOC.forEach(function(it){
+      if (it.g !== lastG) {
+        if (lastG !== null) html += '</div>';
+        html += '<div class="grp" data-g="' + esc(it.g || '') + '"><div class="grp-h">'
+          + '<span class="car">\u25bc</span><span class="gt">' + esc(it.g) + ' · ' + esc(it.pt || '') + '</span>'
+          + '<span class="gp"></span></div>';
+        lastG = it.g;
+      }
+      html += '<a class="toc-item" href="javascript:void(0)" data-p="' + it.p + '">'
+        + '<i class="dot d0" data-dp="' + it.p + '"></i>'
+        + '<span class="tx">' + esc(it.t) + '</span><span class="pg">P' + it.p + '</span></a>';
+    });
+    if (lastG !== null) html += '</div>';
+    sideBody.innerHTML = html;
+    var links = sideBody.querySelectorAll('.toc-item');
+    for (var i = 0; i < links.length; i++) {
+      links[i].addEventListener('click', function(){
+        var p = parseInt(this.getAttribute('data-p'), 10);
+        goTo(p, false);
+        if (window.innerWidth < 1000) closeSide();
+      });
+    }
+    var heads = sideBody.querySelectorAll('.grp-h');
+    for (var j = 0; j < heads.length; j++) {
+      heads[j].addEventListener('click', function(){
+        var g = this.parentNode, name = g.getAttribute('data-g');
+        g.classList.toggle('collapsed');
+        if (g.classList.contains('collapsed')) collapsed[name] = 1; else delete collapsed[name];
+        savePref();
+      });
+    }
+    var gs = sideBody.querySelectorAll('.grp');
+    for (var k = 0; k < gs.length; k++) {
+      if (collapsed[gs[k].getAttribute('data-g')]) gs[k].classList.add('collapsed');
+    }
+    refreshDots();
+    markToc();
+  }
+  function renderThumbs(){
+    var html = '<div class="thumbs">';
+    for (var i = 1; i <= N; i++) {
+      html += '<button data-p="' + i + '" id="th' + i + '"><img loading="lazy" alt=""><i class="dot d0" data-dp="' + i + '"></i><span>' + i + '</span></button>';
+    }
+    html += '</div>';
+    sideBody.innerHTML = html;
+    var imgs = sideBody.querySelectorAll('button[data-p] img');
+    for (var j = 0; j < imgs.length; j++) imgs[j].src = thFor(j + 1);
+    var bs = sideBody.querySelectorAll('button[data-p]');
+    for (var q = 0; q < bs.length; q++) {
+      bs[q].addEventListener('click', function(){
+        goTo(parseInt(this.getAttribute('data-p'), 10), false);
+        if (window.innerWidth < 1000) closeSide();
+      });
+    }
+    refreshDots();
+    markToc();
+  }
+  (function bindTabs(){
+    var tabs = document.querySelectorAll('.side-tabs button');
+    for (var i = 0; i < tabs.length; i++) {
+      tabs[i].addEventListener('click', function(){
+        tab = this.getAttribute('data-tab');
+        for (var j = 0; j < tabs.length; j++) tabs[j].classList.toggle('on', tabs[j] === this);
+        if (tab === 'toc') renderToc(); else renderThumbs();
+      });
+    }
+  })();
+  function openSide(){ sideEl.classList.add('open'); sideScrim.classList.add('show'); }
+  function closeSide(){ sideEl.classList.remove('open'); sideScrim.classList.remove('show'); }
+  document.getElementById('btnSide').addEventListener('click', function(){
+    if (window.innerWidth >= 1000) {
+      body.classList.toggle('side-off');
+      setTimeout(function(){ fit(); goTo(cur, false); }, 210);
+    } else if (sideEl.classList.contains('open')) {
+      closeSide();
+    } else {
+      openSide();
+    }
+  });
+  document.getElementById('btnSideX').addEventListener('click', function(){
+    if (window.innerWidth >= 1000) {
+      body.classList.add('side-off');
+      setTimeout(function(){ fit(); goTo(cur, false); }, 210);
+    } else {
+      closeSide();
+    }
+  });
+  sideScrim.addEventListener('click', closeSide);
+
+  /* ================= 翻页 ================= */
+  var zenTimer = null, lastTapT = 0, lastTapX = 0, lastTapY = 0, tapX = 0, tapY = 0, tapT = 0, moved = false;
+  function setCur(n){
+    cur = n;
+    idxEl.textContent = n + ' / ' + N;
+    slider.value = n;
+    ensure(n - 1); ensure(n); ensure(n + 1); ensure(n + 2);
+    syncBlanks(n);
+    if (activeEl) activeEl.classList.remove('active');
+    activeEl = document.getElementById('sl' + n);
+    if (activeEl) activeEl.classList.add('active');
+    if (zoom.on || body.classList.contains('zoommode')) exitZoom(false);
+    refreshCurCnt();
+    markToc();
+    updateLvChip();
+    PREF.p = n;
+    savePref();
+  }
+  function goTo(n, smooth){
+    n = Math.min(N, Math.max(1, parseInt(n, 10) || 1));
+    var w = viewport.clientWidth;
+    try { viewport.scrollTo({ left: (n - 1) * w, behavior: smooth ? 'smooth' : 'auto' }); }
+    catch (e) { viewport.scrollLeft = (n - 1) * w; }
+    setCur(n);
+  }
+  var ticking = false;
+  viewport.addEventListener('scroll', function(){
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function(){
+      ticking = false;
+      var w = viewport.clientWidth || 1;
+      var n = Math.min(N, Math.max(1, Math.round(viewport.scrollLeft / w) + 1));
+      if (n !== cur) setCur(n);
+    });
+  }, { passive: true });
+  slider.addEventListener('input', function(){ goTo(+slider.value, false); });
+  document.getElementById('prev').addEventListener('click', function(){ goTo(cur - 1, true); });
+  document.getElementById('next').addEventListener('click', function(){ goTo(cur + 1, true); });
+  jump.addEventListener('change', function(e){
+    var v = +e.target.value;
+    if (v >= 1) goTo(v, true);
+    e.target.value = '';
+  });
+
+  /* ================= 放大（双击 / 双指 / 按钮），自动清屏，收放不丢当前页 ================= */
+  var zoom = { on: false, s: 1, tx: 0, ty: 0 };
+  var pan = null, pinch = null, mpan = null, lastZoomToggle = 0;
+  function pagebox(){ return document.getElementById('pb' + cur); }
+  function layoutScroll(){
+    try { viewport.scrollLeft = (cur - 1) * viewport.clientWidth; } catch (e) {}
+  }
+  function applyZoom(animate){
+    var pb = pagebox();
+    if (!pb) return;
+    var sl = pb.parentNode;
+    if (!zoom.on || zoom.s <= 1.02) {
+      pb.style.transition = animate ? 'transform .18s ease-out' : 'none';
+      pb.style.transform = '';
+      if (sl) sl.classList.remove('zooming');
+      body.classList.remove('zoomed');
+      zoom.on = false; zoom.s = 1; zoom.tx = 0; zoom.ty = 0;
+    } else {
+      pb.style.transition = animate ? 'transform .18s ease-out' : 'none';
+      pb.style.transform = 'translate(' + zoom.tx.toFixed(1) + 'px,' + zoom.ty.toFixed(1) + 'px) scale(' + zoom.s.toFixed(3) + ')';
+      if (sl) sl.classList.add('zooming');
+      body.classList.add('zoomed');
+    }
+    var zb = document.getElementById('btnZoom');
+    if (zb) {
+      zb.classList.toggle('on', zoom.on);
+      zb.setAttribute('aria-pressed', zoom.on ? 'true' : 'false');
+    }
+  }
+  function clampZoom(){
+    var pb = pagebox();
+    if (!pb) return;
+    var w0 = pb.offsetWidth, h0 = pb.offsetHeight;
+    var vw = viewport.clientWidth, vh = viewport.clientHeight;
+    var mx = Math.max(0, (w0 * zoom.s - vw) / 2);
+    var my = Math.max(0, (h0 * zoom.s - vh) / 2);
+    zoom.tx = Math.min(mx, Math.max(-mx, zoom.tx));
+    zoom.ty = Math.min(my, Math.max(-my, zoom.ty));
+  }
+  function zoomTo(s, x, y){
+    var pb = pagebox();
+    if (!pb) return;
+    s = Math.min(4, Math.max(1, s));
+    if (s <= 1.02) { exitZoom(true); return; }
+    var pr = pb.getBoundingClientRect();
+    var cx = pr.left + pr.width / 2, cy = pr.top + pr.height / 2;
+    if (typeof x !== 'number') x = viewport.getBoundingClientRect().left + viewport.clientWidth / 2;
+    if (typeof y !== 'number') y = viewport.getBoundingClientRect().top + viewport.clientHeight / 2;
+    zoom.s = s;
+    zoom.tx = -(s - 1) * (x - cx);
+    zoom.ty = -(s - 1) * (y - cy);
+    zoom.on = true;
+    clampZoom();
+    applyZoom(true);
+    if (!HINTS.h3) { HINTS.h3 = 1; saveHints(); toast('双指拖动看别处 · 双击书页复原', { dur: 2400 }); }
+  }
+  /* 放大时自动进清屏（只留书页），双击复原时工具栏一起回来 */
+  function enterZoomMode(){
+    if (!body.classList.contains('zoommode')) {
+      body.classList.add('zoommode');
+      fit();
+      layoutScroll();
+    }
+  }
+  function enterZoomAt(x, y){
+    enterZoomMode();
+    zoomTo(2.9, x, y);
+  }
+  function exitZoom(animate){
+    var was = zoom.on || body.classList.contains('zoommode');
+    zoom.on = false; zoom.s = 1; zoom.tx = 0; zoom.ty = 0;
+    if (body.classList.contains('zoommode')) {
+      body.classList.remove('zoommode');
+      fit();
+      layoutScroll();
+    }
+    applyZoom(!!animate);
+    return was;
+  }
+  function toggleZoom(x, y){
+    lastZoomToggle = Date.now();
+    if (zoom.on || body.classList.contains('zoommode')) exitZoom(true);
+    else enterZoomAt(x, y);
+  }
+  document.getElementById('btnZoom').addEventListener('click', function(){ toggleZoom(); });
+  viewport.addEventListener('dblclick', function(e){
+    if (e.target.closest && e.target.closest('.blank')) return;
+    /* iPad 上「双击」会先由 touch 双击处理，随后 Safari 还会补发一次 dblclick：
+       这里用时间闸门吃掉补发的那一次，否则会放大后立刻复原（看着像双击没反应） */
+    if (Date.now() - lastZoomToggle < 800) return;
+    toggleZoom(e.clientX, e.clientY);
+  });
+  /* 放大后用鼠标 / 触控板拖动也能平移（以前只有手指能拖） */
+  viewport.addEventListener('mousedown', function(e){
+    if (!zoom.on) return;
+    if (e.target.closest && (e.target.closest('.blank') || e.target.closest('button'))) return;
+    mpan = { x0: e.clientX, y0: e.clientY, tx0: zoom.tx, ty0: zoom.ty };
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', function(e){
+    if (!mpan || !zoom.on) return;
+    zoom.tx = mpan.tx0 + (e.clientX - mpan.x0);
+    zoom.ty = mpan.ty0 + (e.clientY - mpan.y0);
+    clampZoom();
+    applyZoom(false);
+    e.preventDefault();
+  });
+  window.addEventListener('mouseup', function(){ mpan = null; });
+
+  function tdist(a, b){ var dx = a.clientX - b.clientX, dy = a.clientY - b.clientY; return Math.sqrt(dx * dx + dy * dy) || 1; }
+  function tmid(e){
+    var r = viewport.getBoundingClientRect();
+    return { x: (e.touches[0].clientX + e.touches[1].clientX) / 2, y: (e.touches[0].clientY + e.touches[1].clientY) / 2 };
+  }
+  viewport.addEventListener('touchstart', function(e){
+    if (e.touches.length === 1) {
+      tapX = e.touches[0].clientX; tapY = e.touches[0].clientY; tapT = Date.now(); moved = false;
+      if (zoom.on) pan = { x0: e.touches[0].clientX, y0: e.touches[0].clientY, tx0: zoom.tx, ty0: zoom.ty };
+    } else {
+      moved = true;
+      pan = null; pinch = null;
+      var m = tmid(e);
+      if (!zoom.on) enterZoomMode();
+      pinch = { d0: tdist(e.touches[0], e.touches[1]), s0: zoom.on ? zoom.s : 1 };
+    }
+  }, { passive: true });
+  viewport.addEventListener('touchmove', function(e){
+    if (e.touches.length >= 2) {
+      moved = true;
+      var m = tmid(e);
+      if (!zoom.on) enterZoomMode();
+      if (!pinch) pinch = { d0: tdist(e.touches[0], e.touches[1]), s0: zoom.on ? zoom.s : 1 };
+      var s = Math.min(4, Math.max(1, pinch.s0 * (tdist(e.touches[0], e.touches[1]) / pinch.d0)));
+      if (s <= 1.02) { exitZoom(false); pinch = null; e.preventDefault(); return; }
+      zoom.s = s;
+      zoom.on = true;
+      applyZoom(false);
+      e.preventDefault();
+      return;
+    }
+    if (zoom.on && e.touches.length === 1 && pan) {
+      zoom.tx = pan.tx0 + (e.touches[0].clientX - pan.x0);
+      zoom.ty = pan.ty0 + (e.touches[0].clientY - pan.y0);
+      clampZoom();
+      applyZoom(false);
+      e.preventDefault();
+    }
+  }, { passive: false });
+  viewport.addEventListener('touchend', function(e){
+    if (e.touches.length > 0) { pan = null; pinch = null; return; }
+    pan = null; pinch = null;
+    if (moved) return;
+    if (e.target.closest && (e.target.closest('.blank') || e.target.closest('button'))) return;
+    var now = Date.now();
+    if (now - lastTapT < 320 && Math.abs(tapX - lastTapX) < 40 && Math.abs(tapY - lastTapY) < 40) {
+      clearTimeout(zenTimer);
+      lastTapT = 0;
+      toggleZoom(tapX, tapY);
+      return;
+    }
+    lastTapT = now; lastTapX = tapX; lastTapY = tapY;
+    if (zoom.on) return;
+    clearTimeout(zenTimer);
+    zenTimer = setTimeout(function(){ tapAction(tapX, tapY); }, 300);
+  }, { passive: true });
+  viewport.addEventListener('click', function(e){
+    if ('ontouchstart' in window) return;
+    if (e.target.closest && (e.target.closest('.blank') || e.target.closest('button'))) return;
+    tapAction(e.clientX, e.clientY);
+  });
+  /* 轻点分区（跟主流漫画/阅读器一致）：左 30% 上一页 · 右 30% 下一页 · 中间清屏 */
+  function tapAction(x, y){
+    if (zoom.on || body.classList.contains('zoommode')) { toggleZen(); return; }
+    var r = viewport.getBoundingClientRect();
+    var rel = (x - r.left) / Math.max(1, r.width);
+    if (rel < 0.3) { if (cur > 1) { goTo(cur - 1, true); return; } }
+    else if (rel > 0.7) { if (cur < N) { goTo(cur + 1, true); return; } }
+    toggleZen();
+  }
+  function toggleZen(){
+    var on = !body.classList.contains('zen');
+    body.classList.toggle('zen', on);
+    if (on) { closeSide(); closeSheets(); }
+    setTimeout(function(){ fit(); goTo(cur, false); }, 30);
+    if (on && !HINTS.h2) { HINTS.h2 = 1; saveHints(); setTimeout(function(){ toast('轻点屏幕唤回工具栏', { dur: 2000 }); }, 280); }
+  }
+
+  function fit(){
+    var vh = viewport.clientHeight - 20, vw = viewport.clientWidth - 16;
+    document.documentElement.style.setProperty('--ph', Math.max(120, vh) + 'px');
+    document.documentElement.style.setProperty('--pw', Math.max(120, vw) + 'px');
+  }
+  window.addEventListener('resize', function(){
+    if (zoom.on || body.classList.contains('zoommode')) exitZoom(false);
+    if (window.innerWidth >= 1000) body.classList.remove('side-off');
+    fit();
+    setTimeout(function(){ goTo(cur, false); }, 30);
+  });
+  window.addEventListener('orientationchange', function(){ setTimeout(function(){ fit(); goTo(cur, false); }, 260); });
+
+  /* ================= 背诵进度 ================= */
+  var lastDone = 0, lastDonePage = 0;
+  var doneBtn = document.getElementById('btnRecite');
+  function doneButtonFlash(){
+    var sp = doneBtn.querySelector('span');
+    doneBtn.classList.add('ok');
+    if (sp) sp.textContent = '已记下 ✓';
+    clearTimeout(doneButtonFlash._t);
+    doneButtonFlash._t = setTimeout(function(){
+      doneBtn.classList.remove('ok');
+      if (sp) sp.textContent = '背完了';
+    }, 1400);
+  }
+  function markDone(p){
+    if (lastDone && Date.now() - lastDone < 420 && lastDonePage === p) return;
+    lastDone = Date.now(); lastDonePage = p;
+    var old = PROG.pages[p] ? JSON.parse(JSON.stringify(PROG.pages[p])) : null;
+    var r = PROG.pages[p];
+    if (!r) r = PROG.pages[p] = { lv: 0, n: 0 };
+    r.lv = Math.min(6, (r.lv || 0) + 1);
+    r.n = (r.n || 0) + 1;
+    r.last = Date.now();
+    r.due = startOf() + IV[r.lv] * DAY;
+    r.next = isoOf(r.due);   /* 给首页统计用的 ISO 日期 */
+    saveProg(); afterChange(); burst(); doneButtonFlash();
+    toast('第 ' + p + ' 页 · Lv.' + r.lv + ' ✓ 下次 ' + fmtWhen(r.due), {
+      label: '撤销',
+      fn: function(){
+        if (old) PROG.pages[p] = old; else delete PROG.pages[p];
+        saveProg(); afterChange();
+        doneBtn.classList.remove('ok');
+        var sp = doneBtn.querySelector('span');
+        if (sp) sp.textContent = '背完了';
+        toast('已撤销 · 第 ' + p + ' 页');
+      }
+    });
+  }
+  function snooze(p){
+    var r = PROG.pages[p];
+    if (!r) return;
+    r.due = startOf() + 7 * DAY;
+    r.next = isoOf(r.due);
+    r.sn = (r.sn || 0) + 1;
+    saveProg(); afterChange();
+    toast('第 ' + p + ' 页已推后 7 天（' + fmtDate(r.due) + '）');
+  }
+  document.getElementById('btnRecite').addEventListener('click', function(){ markDone(cur); });
+
+  /* ================= 今日待复习 ================= */
+  function renderToday(){
+    var list = dueList();
+    document.getElementById('todaySub').textContent = list.length
+      ? ('共 ' + list.length + ' 页到期 · 从最早到期开始')
+      : '今天没有到期的页';
+    var box = document.getElementById('dueList');
+    if (!list.length) {
+      box.innerHTML = '<div class="empty">今天没有到期的页 ✨<br><span>背几页新的，或者去随机抽查一下。</span></div>';
+      return;
+    }
+    var html = '';
+    list.forEach(function(p){
+      var r = PROG.pages[p];
+      var d = diffDays(r.due);
+      var when = d < 0 ? ('逾期 ' + (-d) + ' 天') : (d === 0 ? '今天到期' : ('还有 ' + d + ' 天'));
+      html += '<div class="due-row">'
+        + '<button class="due-go" data-jump="' + p + '">'
+        + '<span class="pbadge">P' + p + '</span>'
+        + '<span class="dinfo"><b>第 ' + p + ' 页</b><i>Lv.' + r.lv + ' · ' + when + ' · 背过 ' + (r.n || 1) + ' 次</i></span>'
+        + '</button>'
+        + '<button class="due-sn" data-snooze="' + p + '">太熟了</button>'
+        + '</div>';
+    });
+    box.innerHTML = html;
+  }
+  document.getElementById('todaySheet').addEventListener('click', function(e){
+    var go = e.target.closest('[data-jump]');
+    if (go) { var p = parseInt(go.getAttribute('data-jump'), 10); closeSheets(); goTo(p, true); return; }
+    var sn = e.target.closest('[data-snooze]');
+    if (sn) snooze(parseInt(sn.getAttribute('data-snooze'), 10));
+  });
+  document.getElementById('btnToday').addEventListener('click', function(){ openSheet('todaySheet'); });
+
+  /* ================= 随机抽查 ================= */
+  var randMode = null;
+  function poolFor(mode){
+    var a = [], i;
+    if (mode === 'new') {
+      for (i = 1; i <= N; i++) if (!lvOf(i)) a.push(i);
+      return a;
+    }
+    if (mode === 'sec') {
+      var gr = groupOf(cur);
+      for (i = gr.start; i <= gr.end; i++) a.push(i);
+      return a;
+    }
+    for (i = 1; i <= N; i++) a.push(i);
+    return a;
+  }
+  function doRandom(mode){
+    var pool = poolFor(mode), p = cur;
+    if (!pool.length) { toast('这个范围没有可抽的页'); return; }
+    if (pool.length === 1) p = pool[0];
+    else { var guard = 0; do { p = pool[Math.floor(Math.random() * pool.length)]; guard++; } while (p === cur && guard < 20); }
+    randMode = mode;
+    closeSheets();
+    goTo(p, false);
+    updateRandUI();
+    var names = { all: '全部', sec: '当前部分', new: '没背过的' };
+    toast('抽查 · 第 ' + p + ' 页（' + names[mode] + '）· 背完点右下角 ✓');
+  }
+  function updateRandUI(){
+    document.getElementById('btnRand').classList.toggle('on', !!randMode);
+    document.getElementById('btnAgain').style.display = randMode ? '' : 'none';
+    jump.style.display = randMode ? 'none' : '';
+  }
+  function exitRandom(){
+    randMode = null;
+    updateRandUI();
+    toast('已退出抽查');
+  }
+  function renderRand(){
+    var gr = groupOf(cur);
+    document.getElementById('randAll').innerHTML = '全部 <span>' + N + ' 页</span>';
+    document.getElementById('randSec').innerHTML = (gr ? esc(gr.g) : '当前部分') + ' <span>' + (gr ? (gr.end - gr.start + 1) : N) + ' 页</span>';
+    document.getElementById('randNew').innerHTML = '只抽没背过的 <span>' + (N - learnedCount()) + ' 页</span>';
+  }
+  document.getElementById('btnRand').addEventListener('click', function(){
+    if (randMode) { exitRandom(); return; }
+    openSheet('randSheet');
+  });
+  document.getElementById('randSheet').addEventListener('click', function(e){
+    var o = e.target.closest('[data-m]');
+    if (o) doRandom(o.getAttribute('data-m'));
+  });
+  document.getElementById('btnAgain').addEventListener('click', function(){ doRandom(randMode || 'all'); });
+
+  /* ================= 挖空 ================= */
+  function setStyle(st){
+    bstyle = st;
+    body.className = body.className.replace(/bs-\w+/g, '').replace(/\s+/g, ' ').trim();
+    body.classList.add('bs-' + st);
+    body.classList.toggle('cloze', clozeOn);
+    var bs = document.querySelectorAll('#styleSeg button');
+    for (var i = 0; i < bs.length; i++) bs[i].classList.toggle('on', bs[i].getAttribute('data-s') === st);
+    savePref();
+  }
+  function setCloze(on, silent){
+    clozeOn = on;
+    body.classList.toggle('cloze', on);
+    document.getElementById('btnCloze').classList.toggle('on', on);
+    var cs = document.querySelectorAll('#clozeSeg button');
+    for (var i = 0; i < cs.length; i++) {
+      var c = cs[i].getAttribute('data-c');
+      cs[i].classList.toggle('on', (c === 'on' && on) || (c === 'off' && !on));
+    }
+    if (on) for (var k = 1; k <= N; k++) updateCnt(k);
+    savePref();
+    if (on && !silent) toast('已挖空 · 点色块显示答案');
+  }
+  function clearOpened(){
+    openedKeys = {};
+    var els = document.querySelectorAll('.blank.open');
+    for (var i = 0; i < els.length; i++) els[i].classList.remove('open');
+    refreshCurCnt();
+  }
+  function revealAll(){
+    var n = 0;
+    Object.keys(BLANKS).forEach(function (k) {
+      var list = BLANKS[k] || [];
+      for (var i = 0; i < list.length; i++) {
+        if (!openedKeys[blankKey(k, i)]) { n++; openedKeys[blankKey(k, i)] = 1; }
+      }
+    });
+    var els = document.querySelectorAll('.blank');
+    for (var i = 0; i < els.length; i++) els[i].classList.add('open');
+    refreshCurCnt();
+    toast('已显示 ' + n + ' 个空');
+  }
+  document.getElementById('btnCloze').addEventListener('click', function(){
+    if (!clozeOn) { setCloze(true); return; }
+    if (openSheetId === 'clozeSheet') closeSheets(); else openSheet('clozeSheet');
+  });
+  document.getElementById('clozeSheet').addEventListener('click', function(e){
+    var st = e.target.closest('#styleSeg button');
+    if (st) return setStyle(st.getAttribute('data-s'));
+    var c = e.target.closest('#clozeSeg button');
+    if (c) {
+      var m = c.getAttribute('data-c');
+      if (m === 'on') { setCloze(true); clearOpened(); toast('已重新挖空'); }
+      else if (m === 'off') setCloze(false);
+      else revealAll();
+      return;
+    }
+    if (e.target.closest('#btnDone')) closeSheets();
+  });
+
+  /* ================= 底部弹层 ================= */
+  var openSheetId = null;
+  function openSheet(id){
+    if (openSheetId && openSheetId !== id) {
+      var prev = document.getElementById(openSheetId);
+      if (prev) prev.classList.remove('show');
+    }
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (id === 'todaySheet') renderToday();
+    if (id === 'randSheet') renderRand();
+    if (id === 'setSheet') renderSet();
+    el.classList.add('show');
+    scrim.classList.add('show');
+    openSheetId = id;
+  }
+  function closeSheets(){
+    if (openSheetId) {
+      var el = document.getElementById(openSheetId);
+      if (el) el.classList.remove('show');
+    }
+    openSheetId = null;
+    scrim.classList.remove('show');
+  }
+  scrim.addEventListener('click', closeSheets);
+  document.addEventListener('click', function(e){
+    if (e.target.closest && e.target.closest('[data-close]')) closeSheets();
+  });
+  document.getElementById('btnMore').addEventListener('click', function(){ openSheet('setSheet'); });
+
+  /* ================= 记录导出 / 清空 ================= */
+  function renderSet(){
+    var learned = learnedCount(), mastered = masteredCount(), due = dueList().length;
+    document.getElementById('setStat').innerHTML =
+      '<div><b>' + learned + '</b><span>已背页数</span></div>' +
+      '<div><b>' + mastered + '</b><span>已熟页数</span></div>' +
+      '<div><b>' + due + '</b><span>今日待复习</span></div>';
+    document.getElementById('exportBox').value = JSON.stringify({
+      v: 4,
+      title: TITLE,
+      n: N,
+      exportedAt: new Date().toISOString(),
+      key: KEY,
+      pages: PROG.pages
+    });
+  }
+  document.getElementById('btnCopy').addEventListener('click', function(){
+    var ta = document.getElementById('exportBox');
+    ta.focus();
+    ta.select();
+    var done = function(ok){ toast(ok ? '记录已复制到剪贴板' : '已选中文本，长按「复制」即可'); };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(ta.value).then(function(){ done(true); }, function(){ done(false); });
+        return;
+      }
+    } catch (e) {}
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e2) { ok = false; }
+    done(ok);
+  });
+  document.getElementById('btnDl').addEventListener('click', function(){
+    try {
+      var txt = document.getElementById('exportBox').value;
+      var blob = new Blob([txt], { type: 'application/json' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'dsh-背诵记录-' + (N) + '页-' + isoOf(Date.now()) + '.json';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function(){ try { document.body.removeChild(a); URL.revokeObjectURL(url); } catch (e) {} }, 500);
+      toast('已生成 JSON 文件（在「文件」App 里可找到）');
+    } catch (e) {
+      toast('浏览器不支持下载，请用「复制记录」');
+    }
+  });
+  var resetArmed = false, resetTimer = null;
+  document.getElementById('btnReset').addEventListener('click', function(){
+    var b = this;
+    if (!resetArmed) {
+      resetArmed = true;
+      b.classList.add('arm');
+      b.textContent = '再点一次 = 清空';
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(function(){
+        resetArmed = false; b.classList.remove('arm'); b.textContent = '清空记录';
+      }, 3600);
+      return;
+    }
+    resetArmed = false;
+    clearTimeout(resetTimer);
+    b.classList.remove('arm');
+    b.textContent = '清空记录';
+    PROG = { v: 4, pages: {} };
+    saveProg();
+    document.getElementById('exportBox').value = '';
+    afterChange();
+    renderSet();
+    toast('背诵记录已清空，可以重新开始');
+  });
+
+  /* ================= 提示条 ================= */
+  var toastTimer = null;
+  function hideToast(){ toastEl.classList.remove('show'); }
+  function toast(msg, opt){
+    opt = opt || {};
+    toastEl.innerHTML = '';
+    var s = document.createElement('span');
+    s.textContent = msg;
+    toastEl.appendChild(s);
+    if (opt.label) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = opt.label;
+      b.addEventListener('click', function(){
+        hideToast();
+        try { if (opt.fn) opt.fn(); } catch (e) {}
+      });
+      toastEl.appendChild(b);
+    }
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(hideToast, opt.dur || (opt.label ? 4500 : 1900));
+  }
+  function burst(){
+    var el = document.getElementById('burst');
+    var r = viewport.getBoundingClientRect();
+    el.style.left = (r.left + r.width / 2) + 'px';
+    el.style.top = (r.top + r.height / 2) + 'px';
+    el.classList.add('go');
+    clearTimeout(burst._t);
+    burst._t = setTimeout(function(){ el.classList.remove('go'); }, 560);
+  }
+
+  /* ================= 键盘 ================= */
+  document.addEventListener('keydown', function(e){
+    var tag = document.activeElement && document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') {
+      if (e.key === 'Escape') document.activeElement.blur();
+      return;
+    }
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); goTo(cur + 1, true); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); goTo(cur - 1, true); }
+    else if (e.key === 'Escape') { if (zoom.on) resetZoom(true); else { closeSheets(); closeSide(); } }
+    else if (e.key === '+' || e.key === '=') { e.preventDefault(); toggleZoom(); }
+    else if (e.key === '-') { e.preventDefault(); resetZoom(true); }
+  });
+
+  /* ================= 启动 ================= */
+  body.classList.remove('side-off');   /* 横屏默认常驻目录，不受旧状态影响 */
+  renderToc();
+  setStyle(bstyle);
+  if (clozeOn) setCloze(true, true);
+  updateRandUI();
+  fit();
+  ensure(cur); ensure(cur + 1);
+  setCur(cur);
+  refreshBadge();
+  refreshDots();
+  backfillNext();
+  saveProg();
+  setTimeout(function(){ goTo(cur, false); }, 70);
+  if (QS.random === '1') {
+    setTimeout(function(){ doRandom('all'); }, 420);
+  } else if (QS.review === '1') {
+    setTimeout(function(){ openSheet('todaySheet'); }, 420);
+  }
+  if (!HINTS.h1) {
+    HINTS.h1 = 1;
+    saveHints();
+    setTimeout(function(){ toast('双击书页放大 · 右下角「背完了」记进度', { dur: 2600 }); }, 600);
+  }
+})();
+</script>
+<!-- pwa-shell -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js', {scope: './'}).catch(function () {});
+  });
+}
+</script>
+</body>
+</html>

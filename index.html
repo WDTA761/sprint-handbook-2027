@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<!-- pwa-shell -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="robots" content="noindex,nofollow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7d7e2">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="背诵手册">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>2027考研政治 · 冲刺背诵手册</title>
+<style>
+:root{--bg:#f7d7e2;--bg2:#fdf1f6;--card:#fffafc;--fg:#2b1f24;--fg2:#8a7079;--line:#eec3d2;--accent:#a93a63;--shadow:0 10px 26px rgba(150,90,115,.16)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 42%,var(--bg) 100%);
+ color:var(--fg);line-height:1.7;min-height:100dvh;
+ font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",-apple-system,sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:calc(34px + env(safe-area-inset-top)) 20px calc(40px + env(safe-area-inset-bottom))}
+.head{text-align:center;margin-bottom:24px}
+.logo{width:76px;height:76px;border-radius:20px;box-shadow:0 10px 24px rgba(150,90,115,.24);margin-bottom:12px;display:inline-block}
+.eyebrow{font-size:11.5px;letter-spacing:.26em;color:var(--accent);font-weight:700}
+h1{font-size:clamp(24px,5vw,32px);margin:8px 0 6px;letter-spacing:-.01em}
+.sub{color:var(--fg2);font-size:13px}
+.grid{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:820px){.grid{grid-template-columns:1fr 1fr}.grid a.card:last-child{grid-column:1/-1}}
+a.card{display:flex;gap:15px;padding:17px;border-radius:20px;background:var(--card);
+ border:1px solid var(--line);text-decoration:none;color:inherit;box-shadow:var(--shadow);
+ transition:transform .15s,border-color .15s}
+a.card:active{transform:scale(.99);border-color:var(--accent)}
+.tag{flex:none;width:58px;height:58px;border-radius:16px;display:grid;place-items:center;
+ background:linear-gradient(160deg,#c2517a,#a93a63);color:#fff;font-size:13px;font-weight:800;letter-spacing:.04em}
+.body{flex:1;min-width:0}
+.title{font-size:16.5px;font-weight:800;margin:0 0 3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.badge{font-size:10px;font-weight:700;color:var(--accent);border:1px solid var(--line);
+ border-radius:999px;padding:1px 7px;background:#fff}
+.desc{font-size:12.5px;color:var(--fg2);margin-bottom:8px}
+.items{display:flex;flex-wrap:wrap;gap:6px}
+.items span{font-size:11px;color:var(--fg2);border:1px solid var(--line);border-radius:999px;
+ padding:2px 8px;background:#fff}
+
+/* 今日复习条 */
+.today{display:none;margin:0 0 14px;padding:15px 17px;border-radius:20px;background:#fff;
+ border:1px solid var(--line);box-shadow:var(--shadow);align-items:center;gap:14px;text-decoration:none;color:inherit}
+.today.show{display:flex}
+.today .ring{flex:none;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;
+ background:linear-gradient(160deg,#f9dbe6,#f3c1d5);color:var(--accent);font-weight:800;font-size:19px;line-height:1}
+.today .t1{font-size:15px;font-weight:800;margin:0 0 2px}
+.today .t2{font-size:12px;color:var(--fg2)}
+
+.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);text-align:center;
+ font-size:11.5px;color:var(--fg2);line-height:2}
+.foot b{color:var(--accent);font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <img class="logo" src="icons/icon-192.png" alt="背诵手册">
+    <div class="eyebrow">2027 考研政治</div>
+    <h1>冲刺背诵手册</h1>
+    <div class="sub">陆寓丰（腿姐）编著 · 中国农业出版社<br>手机 / iPad 自适应 · 装到主屏后断网也能翻看</div>
+  </div>
+
+  <a class="today" id="today" href="up-pages.html?review=1">
+    <div class="ring" id="todayN">0</div>
+    <div>
+      <div class="t1" id="todayTitle">今天该复习了</div>
+      <div class="t2" id="todaySub">点这里开始</div>
+    </div>
+  </a>
+
+  <div class="grid">
+    <a class="card" href="up-pages.html"><div class="tag">上册</div><div class="body"><div class="title">冲刺背诵手册 · 上册 <span class="badge">原版页</span></div><div class="desc">5 类专题 · 240 页原版页</div><div class="items"><span>98 条目录索引</span><span>一键挖空</span><span>背完打勾</span><span>双击放大</span></div></div></a><a class="card" href="down-pages.html"><div class="tag">下册</div><div class="body"><div class="title">冲刺背诵手册 · 下册 <span class="badge">原版页</span></div><div class="desc">会议文献 · 核心专题 · 分析题</div><div class="items"><span>18 条目录索引</span><span>一键挖空</span><span>背完打勾</span><span>双击放大</span></div></div></a><a class="card" href="book-all.html"><div class="tag">合集</div><div class="body"><div class="title">文字版 · 上下册 <span class="badge">文字版</span></div><div class="desc">可搜索 / 可调字号 / 夜间模式</div><div class="items"><span>全文检索</span><span>字号与主题</span><span>进度保存</span></div></div></a>
+  </div>
+
+  <div class="foot">
+    原版页：左侧目录索引 · 左右翻页 · 一键挖空 · 双击放大 · 右下「背完了」记进度<br>
+    <b>iPad 用法</b>：Safari 打开 → 分享 ↑ → 添加到主屏幕；横屏最舒服<br>
+    教材版权归中国农业出版社 / 陆寓丰所有，仅供个人学习使用
+  </div>
+</div>
+<script>
+/* 今日待复习：读阅读器写入的记录（key = dsh-r4-progress-<hash>，每页 {lv,n,last,due,next}） */
+(function () {
+  var iso = (function (d) {
+    var t = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+    return t.toISOString().slice(0, 10);
+  })(new Date());
+  var due = 0, total = 0;
+  try {
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (!k || k.indexOf('dsh-r4-progress-') !== 0) continue;
+      try {
+        var o = JSON.parse(localStorage.getItem(k));
+        if (!o || !o.pages) continue;
+        for (var p in o.pages) {
+          var r = o.pages[p];
+          if (!r || !r.lv) continue;
+          total++;
+          if (r.next && r.next <= iso) due++;
+        }
+      } catch (e) {}
+    }
+  } catch (e) {}
+  if (due > 0) {
+    document.getElementById('todayN').textContent = due;
+    document.getElementById('todayTitle').textContent = '今天要复习 ' + due + ' 页';
+    document.getElementById('todaySub').textContent = '已记录 ' + total + ' 页进度 · 点这里开始';
+    var el = document.getElementById('today'); el.className = 'today show';
+  } else if (total > 0) {
+    document.getElementById('todayN').textContent = total;
+    document.getElementById('todayTitle').textContent = '今天没有到期的页';
+    document.getElementById('todaySub').textContent = '已背 ' + total + ' 页 · 可以背新的，或随机抽查';
+    var el2 = document.getElementById('today'); el2.className = 'today show'; el2.href = 'up-pages.html?random=1';
+  }
+})();
+</script>
+<!-- pwa-shell -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js', {scope: './'}).catch(function () {});
+  });
+}
+</script>
+</body>
+</html>
