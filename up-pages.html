@@ -809,15 +809,28 @@ body.zen .slide .no,body.zen .slide .cnt{display:none}
     PREF.p = n;
     savePref();
   }
+  /* 翻页锁：点按钮的平滑滚动期间，手指再滑不会再叠一页（修「点下一页又滑一下飞两页」） */
+  var pagingLock = 0;
+  function realignPage(){
+    var w = viewport.clientWidth || 1;
+    var vis = Math.min(N, Math.max(1, Math.round(viewport.scrollLeft / w) + 1));
+    if (vis !== cur) { try { viewport.scrollLeft = (cur - 1) * w; } catch (e) {} }
+  }
   function goTo(n, smooth){
     n = Math.min(N, Math.max(1, parseInt(n, 10) || 1));
     var w = viewport.clientWidth;
+    pagingLock = Date.now() + (smooth ? 480 : 140);
     try { viewport.scrollTo({ left: (n - 1) * w, behavior: smooth ? 'smooth' : 'auto' }); }
     catch (e) { viewport.scrollLeft = (n - 1) * w; }
     setCur(n);
+    if (smooth) {
+      clearTimeout(goTo._t);
+      goTo._t = setTimeout(function(){ if (Date.now() >= pagingLock - 40) realignPage(); }, 520);
+    }
   }
   var ticking = false;
   viewport.addEventListener('scroll', function(){
+    if (Date.now() < pagingLock) return;   /* 平滑翻页途中不改当前页，避免和手指滑动叠加 */
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(function(){
@@ -963,6 +976,7 @@ body.zen .slide .no,body.zen .slide .cnt{display:none}
     }
   }, { passive: true });
   viewport.addEventListener('touchmove', function(e){
+    clearTimeout(zenTimer);
     if (e.touches.length >= 2) {
       moved = true;
       var m = tmid(e);
